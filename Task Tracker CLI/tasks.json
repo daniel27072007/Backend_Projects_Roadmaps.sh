@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "description": "lavar-carro",
+    "status": "done",
+    "createdAt": "2026-06-18T21:36:46.792Z",
+    "updatedAt": "18/06/2026"
+  },
+  {
+    "id": 2,
+    "description": "fazer-jantar",
+    "status": "in-progress",
+    "createdAt": "2026-06-18T21:37:29.536Z",
+    "updatedAt": "18/06/2026"
+  },
+  {
+    "id": 3,
+    "description": "compras",
+    "status": "todo",
+    "createdAt": "2026-06-18T23:58:51.303Z",
+    "updatedAt": "18/06/2026"
+  },
+  {
+    "id": 4,
+    "description": "flores",
+    "status": "todo",
+    "createdAt": "2026-06-19T00:57:06.398Z",
+    "updatedAt": "2026-06-19T00:58:13.834Z"
+  }
+]
