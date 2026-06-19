@@ -3,4 +3,5 @@ Here are all the projects i did about backend avalible in Roadmaps.sh
 
 <ul>
     <li><a href="https://roadmap.sh/projects/task-tracker">Task Tracker</a></li>
+    <li><a href="https://roadmap.sh/projects/github-user-activity">GitHub User Activity</a></li>
 </ul>
