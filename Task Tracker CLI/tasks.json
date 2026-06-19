@@ -26,5 +26,12 @@
     "status": "todo",
     "createdAt": "2026-06-19T00:57:06.398Z",
     "updatedAt": "2026-06-19T00:58:13.834Z"
+  },
+  {
+    "id": 5,
+    "description": "gasolina",
+    "status": "done",
+    "createdAt": "2026-06-19T01:25:30.251Z",
+    "updatedAt": "2026-06-19T01:26:50.256Z"
   }
 ]
