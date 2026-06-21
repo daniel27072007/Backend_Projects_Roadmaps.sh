@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "expense-name": "flores",
+    "amount": 120,
+    "createdAt": "2026-06-21T00:42:45.955Z"
+  },
+  {
+    "id": 2,
+    "expense-name": "Mercado do mes",
+    "amount": 350,
+    "createdAt": "2026-06-21T00:43:31.464Z"
+  },
+  {
+    "id": 3,
+    "expense-name": "Pizza do fim de semana",
+    "amount": 65,
+    "createdAt": "2026-06-21T00:43:31.554Z"
+  },
+  {
+    "id": 4,
+    "expense-name": "Conta de Luz",
+    "amount": 142,
+    "createdAt": "2026-06-21T00:43:31.639Z"
+  },
+  {
+    "id": 5,
+    "expense-name": "Assinatura Netflix",
+    "amount": 55,
+    "createdAt": "2026-06-21T00:43:31.736Z"
+  },
+  {
+    "id": 6,
+    "expense-name": "Gasolina",
+    "amount": 100,
+    "createdAt": "2026-06-21T00:43:31.868Z"
+  },
+  {
+    "id": 7,
+    "expense-name": "Corrida de Uber",
+    "amount": 25,
+    "createdAt": "2026-06-21T00:43:31.965Z"
+  },
+  {
+    "id": 8,
+    "expense-name": "Cinema e pipoca",
+    "amount": 48,
+    "createdAt": "2026-06-21T00:43:32.053Z"
+  },
+  {
+    "id": 9,
+    "expense-name": "Camiseta nova",
+    "amount": 89,
+    "createdAt": "2026-06-21T00:43:32.135Z"
+  }
+]
