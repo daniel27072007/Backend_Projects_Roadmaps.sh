@@ -1,7 +1,38 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import { Command } from 'commander';
-import { JSONAdd, JSONUpdate, deleteData } from './functions/functions.js'
+import { JSONAdd, JSONUpdate, deleteData, JSONBugget } from './functions/functions.js'
+
+const totalInMonth = (month) => {
+    let DataString = "[]"
+        if(fs.existsSync('./data.json')){
+            DataString = fs.readFileSync('./data.json', 'utf-8');
+        }
+    const DataArray = JSON.parse(DataString);
+    let buggetString = "[]"
+        if(fs.existsSync('./buggetData.json')){
+            buggetString = fs.readFileSync('./buggetData.json', 'utf-8');
+        }
+    const buggetArray = JSON.parse(buggetString);
+    let totalAmount = 0;
+    DataArray.forEach((element)=>{
+        const monthOnly = new Date(element.createdAt).getUTCMonth() + 1;
+        if(monthOnly === month){
+            totalAmount += element.amount;
+        }
+    });
+    let maxBugget = 0;
+    buggetArray.forEach((element)=>{
+        if(Number(element.month) === month){
+           maxBugget = Number(element['max-bugget']);
+        }
+    });
+    const buggetInfo = {
+        "max": maxBugget,
+        "total": totalAmount
+    }
+    return buggetInfo
+}
 
 const program = new Command();
 
@@ -13,12 +44,14 @@ program
 program
     .command('add')
     .description('add an expense with a description and amount.')
+    .option('-c, --category <expenseCategory>','category of the expense')
     .requiredOption('-d, --description <expenseName>', 'name of the expense')
     .requiredOption('-a, --amount <expenseAmount>','expense money amount')
     .action((options)=>{
+        const expenseCategory = options.category || 'others';
         const expenseName = options.description;
         const expenseAmount = Number(options.amount);
-        const id = JSONAdd('./data.json', expenseName, expenseAmount);
+        const id = JSONAdd('./data.json', expenseName, expenseAmount, expenseCategory);
         console.log(`# Expense added successfully (ID: ${id})`);
     });
 
@@ -90,15 +123,33 @@ program
 program
     .command('list')
     .description('show all the current expenses')
-    .action(()=>{
+    .option('-c, --category <category>','show a list of a particular category')
+    .action((options)=>{
+        const listFilteredCategory = options.category || false;
         let DataString = "[]"
         if(fs.existsSync('./data.json')){
             DataString = fs.readFileSync('./data.json', 'utf-8');
         }
         const DataArray = JSON.parse(DataString);
-        console.table(DataArray);
+        if(listFilteredCategory === false){
+            console.table(DataArray);
+        }
+        else{
+            console.table(DataArray.filter(element => element['expense-category'] === listFilteredCategory));
+        }
     });
 
+program
+    .command('bugget')
+    .description('set a bugget for how much you can expend in each month')
+    .option('-m, --month <month>','use this to set a specific month bugget')
+    .requiredOption('-a, --amount <amount>','max bugget amount')
+    .action((options)=>{
+        const maxBugget = Number(options.amount).toFixed(2);
+        const chosenMonth = Number(options.month) || new Date().getMonth()+1;
+        JSONBugget('./buggetData.json', maxBugget, chosenMonth);
+        console.log(`# Max bugget for the ${chosenMonth} month is R$ ${maxBugget}`);
 
+    });
 
 program.parse(process.argv);
