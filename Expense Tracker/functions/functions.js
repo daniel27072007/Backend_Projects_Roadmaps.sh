@@ -27,10 +27,10 @@ export const JSONBugget = (filePath, maxBugget, buggetMonth, encoding = 'utf-8')
   const dataArray = JSON.parse(oldDataString);
   const existingElement = dataArray.find(element => Number(element.month) === Number(buggetMonth));
   if (existingElement) {
-    existingElement['max-bugget'] = maxBugget;
+    existingElement['max-bugget'] = Number(maxBugget);
   } else {
     dataArray.push({
-      "max-bugget": maxBugget,
+      "max-bugget": Number(maxBugget),
       "month": buggetMonth
     });
   }
@@ -68,3 +68,23 @@ export const deleteData=(filePath, id, encoding = 'utf-8')=>{
         return true
     }    
 };
+
+export const JSONToCSV = (filePath, encoding = 'utf-8')=>{
+    let DataString = "[]";
+  if (fs.existsSync(filePath)) {
+    DataString = fs.readFileSync(filePath, encoding);
+  }
+  const dataArray = JSON.parse(DataString);
+  if(dataArray.length === 0){
+    console.error('# [ERROR] - the expense data is empty, cant convert into a CSV file');
+    return 1;
+  }
+
+  const header = Object.keys(dataArray[0]);
+  const headerLine = header.join(',');
+  const lineOfData = dataArray.map(obj => {
+    return header.map(key => JSON.stringify(obj[key])).join(',');
+  });
+  const csvFinal = [headerLine, ...lineOfData].join('\n');
+  fs.writeFileSync('./data.csv', csvFinal, encoding);
+}

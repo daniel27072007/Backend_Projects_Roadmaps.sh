@@ -1,0 +1,11 @@
+id,expense-category,expense-name,amount,createdAt
+1,"food","Almoço executivo",35.5,"2026-06-21T15:02:10.017Z"
+2,"food","Supermercado do mês",450,"2026-06-21T15:02:10.120Z"
+3,"transport","Abastecimento de gasolina",150,"2026-06-21T15:02:10.217Z"
+4,"transport","Corrida de aplicativo",25.3,"2026-06-21T15:02:10.317Z"
+5,"utilities","Conta de luz",180.4,"2026-06-21T15:02:10.427Z"
+6,"utilities","Assinatura de streaming",34.9,"2026-06-21T15:02:10.527Z"
+7,"entertainment","Ingresso de cinema",40,"2026-06-21T15:02:10.637Z"
+8,"others","Remédio na farmácia",62.1,"2026-06-21T15:02:10.737Z"
+9,"others","Presente de aniversário",120,"2026-06-21T15:02:10.837Z"
+10,"others","Manutenção do chuveiro",85,"2026-06-21T15:02:11.572Z"

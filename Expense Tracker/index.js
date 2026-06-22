@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import { Command } from 'commander';
-import { JSONAdd, JSONUpdate, deleteData, JSONBugget } from './functions/functions.js'
+import { JSONAdd, JSONUpdate, deleteData, JSONBugget, JSONToCSV } from './functions/functions.js'
 
 const totalInMonth = (month) => {
     let DataString = "[]"
@@ -17,8 +17,9 @@ const totalInMonth = (month) => {
     let totalAmount = 0;
     DataArray.forEach((element)=>{
         const monthOnly = new Date(element.createdAt).getUTCMonth() + 1;
-        if(monthOnly === month){
-            totalAmount += element.amount;
+
+        if (Number(monthOnly) === Number(month)) {
+            totalAmount += Number(element.amount);
         }
     });
     let maxBugget = 0;
@@ -32,6 +33,14 @@ const totalInMonth = (month) => {
         "total": totalAmount
     }
     return buggetInfo
+}
+const aboveMaxBuggetWarning = () => {
+    const buggetInfo = totalInMonth(new Date().getMonth()+1)
+    if(buggetInfo.total > buggetInfo.max){
+        console.log(`\n# You are above the bugget set for the month!`);
+        console.log(`# Bugget for this month is R$ ${buggetInfo.max.toFixed(2)}`);
+        console.log(`# You already expend R$ ${buggetInfo.total.toFixed(2)} in the month\n`);
+    }
 }
 
 const program = new Command();
@@ -51,8 +60,15 @@ program
         const expenseCategory = options.category || 'others';
         const expenseName = options.description;
         const expenseAmount = Number(options.amount);
-        const id = JSONAdd('./data.json', expenseName, expenseAmount, expenseCategory);
-        console.log(`# Expense added successfully (ID: ${id})`);
+        if(expenseAmount < 0){
+            console.error('[ERROR] - expense amount cannot be below zero')
+        }
+        else{
+            const id = JSONAdd('./data.json', expenseName, expenseAmount, expenseCategory);
+            console.log(`# Expense added successfully (ID: ${id})`);
+            aboveMaxBuggetWarning();
+        }
+        
     });
 
 program
@@ -102,7 +118,8 @@ program
                 oldDataArray.forEach((element)=>{
                     totalAmount += element.amount;
                 });
-                console.log(`# Total expenses: R$ ${totalAmount.toFixed(2)}`); 
+                console.log(`# Total expenses: R$ ${totalAmount.toFixed(2)}`);
+                aboveMaxBuggetWarning();
             }
             else if(month > 12 || month < 1 || isNaN(month)){
                 console.error('# [ERROR] - you must select a month between 1 and 12');
@@ -115,6 +132,7 @@ program
                     }
                 });
                 console.log(`# Total expenses: R$ ${totalAmount.toFixed(2)}`);
+                aboveMaxBuggetWarning();
             }
             
         }
@@ -145,11 +163,20 @@ program
     .option('-m, --month <month>','use this to set a specific month bugget')
     .requiredOption('-a, --amount <amount>','max bugget amount')
     .action((options)=>{
-        const maxBugget = Number(options.amount).toFixed(2);
-        const chosenMonth = Number(options.month) || new Date().getMonth()+1;
+        const maxBugget = Number(Number(options.amount).toFixed(2));
+        const chosenMonth = Number(options.month) || new Date().getUTCMonth() + 1;
         JSONBugget('./buggetData.json', maxBugget, chosenMonth);
         console.log(`# Max bugget for the ${chosenMonth} month is R$ ${maxBugget}`);
+        aboveMaxBuggetWarning();
 
+    });
+
+program
+    .command('csv')
+    .description('creates a csv file with the data guarded in data.json (the expenses)')
+    .action(()=>{
+        JSONToCSV('./data.json');
+        console.log('# data.csv created/updated with success!')
     });
 
 program.parse(process.argv);
