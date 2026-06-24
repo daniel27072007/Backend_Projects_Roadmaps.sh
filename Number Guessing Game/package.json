@@ -4,5 +4,9 @@
   "type": "module",
   "bin": {
     "number-game": "./index.js"
+  },
+  "dependencies": {
+    "command": "^1.1.1",
+    "commander": "^15.0.0"
   }
 }
