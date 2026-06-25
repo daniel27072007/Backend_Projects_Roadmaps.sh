@@ -1,0 +1,27 @@
+[
+  {
+    "dificulty": "Medium",
+    "attempts": 5,
+    "time": "61.62"
+  },
+  {
+    "dificulty": "Easy",
+    "attempts": 2,
+    "time": "13.83"
+  },
+  {
+    "dificulty": "Easy",
+    "attempts": 4,
+    "time": "45.86"
+  },
+  {
+    "dificulty": "Easy",
+    "attempts": 7,
+    "time": "45.16"
+  },
+  {
+    "dificulty": "Easy",
+    "attempts": 3,
+    "time": "13.26"
+  }
+]
