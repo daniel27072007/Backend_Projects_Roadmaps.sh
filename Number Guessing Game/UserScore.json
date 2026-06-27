@@ -23,5 +23,15 @@
     "dificulty": "Easy",
     "attempts": 3,
     "time": "13.26"
+  },
+  {
+    "dificulty": "Medium",
+    "attempts": 3,
+    "time": "53.04"
+  },
+  {
+    "dificulty": "Medium",
+    "attempts": 4,
+    "time": "18.88"
   }
 ]

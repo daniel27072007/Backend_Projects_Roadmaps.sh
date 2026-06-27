@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div class="settings">
+        <header>
+            <h1 id="Title">Unit Converter</h1>
+            <div id="unitsTabs">
+                <button id="lengthButton">Length</button>
+                <button id="weightButton">Weight</button>
+                <button id="temperatureButton">Temperature</button>
+            </div>
+        </header>
+        <main>
+            <div class="textInput">
+                <label for="unitDigits">Enter the length to convert</label>
+                <input type="text" name="unitDigits" id="unitDigits">
+            </div>
+            <div class="textInput">
+                <label for="unitConvertFrom">Unit to Convert from</label>
+                <input type="text" name="unitConvertFrom" id="unitConvertFrom">
+            </div>
+            <div class="textInput">
+                <label for="unitConvertTo">Unit to Convert to</label>
+                <input type="text" name="unitConvertTo" id="unitConvertTo">
+            </div>
+            <button id="endButton">Convert</button>
+        </main>
+    </div>
+</body>
+</html>
