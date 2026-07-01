@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script type="module" src="main.js" defer></script>
+</head>
+<body>
+    <div class="settings">
+        <header>
+            <h1 id="Title">Unit Converter</h1>
+            <div class="unitsTabs">
+                <button id="lengthButton"><a href="length.html" id="selectedTab">Length</a></button>
+                <button id="weightButton"><a href="weight.html">Weight</a></button>
+                <button id="temperatureButton"><a href="temperature.html">Temperature</a></button>
+            </div>
+        </header>
+        <main>
+            <form action="" method="get" target="_self" class="lengthForm">
+                <div class="textInput">
+                    <label for="unitDigits">Enter the length to convert</label>
+                    <input type="number" name="unitDigits" id="unitDigits">
+                </div>
+                <div class="textInput">
+                    <label for="unitConvertFrom">Unit to Convert from</label>
+                    <select name="unitConvertFrom" id="unitConvertFrom">
+                        <option></option>
+                        <option value="Centimetros">Centimetros</option>
+                        <option value="Metros">Metros</option>
+                    </select>
+                </div>
+                <div class="textInput">
+                    <label for="unitConvertTo">Unit to Convert to</label>
+                    <select name="unitConvertTo" id="unitConvertTo">
+                        <option></option>
+                        <option value="Centimetros">Centimetros</option>
+                        <option value="Metros">Metros</option>
+                    </select>
+                </div>
+                <input id="endButton" type="submit" value="Convert">
+            </form>
+        </main>
+    </div>
+</body>
+</html>
