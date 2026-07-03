@@ -70,7 +70,7 @@ main{
     width: 100%;
 }
 
-form{
+form, .resultBox{
     margin-top: 30px;
     width: 100%;
     height: 100%;
@@ -80,13 +80,18 @@ form{
     /* border: solid; */
 }
 
-.textInput{
+.textInput, .resultBox p{
     width: 75%;
     display: flex;
     flex-direction: column;
     gap: 5px;
     font-size: 20px;
     font-weight: bold;
+}
+
+#resultText{
+    font-size: 30px;
+    font-weight: 800;
 }
 
 .textInput input, select{
@@ -98,7 +103,7 @@ form{
     font-weight: 300;
 }
 
-#endButton{
+#endButton, #resetButton{
     margin-top: 20px;
     width: fit-content;
     padding: 10px 30px;

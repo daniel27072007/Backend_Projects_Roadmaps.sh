@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unit Converter</title>
     <link rel="stylesheet" href="stylesheet.css">
-    <script type="module" src="main.js" defer></script>
+    <script src="main.js" defer></script>
 </head>
 <body>
     <div class="settings">
@@ -18,7 +18,7 @@
             </div>
         </header>
         <main>
-            <form action="" method="get" target="_self" class="lengthForm">
+            <form action="/convert-length" method="get" target="_self" class="lengthForm">
                 <div class="textInput">
                     <label for="unitDigits">Enter the length to convert</label>
                     <input type="number" name="unitDigits" id="unitDigits">
@@ -27,20 +27,37 @@
                     <label for="unitConvertFrom">Unit to Convert from</label>
                     <select name="unitConvertFrom" id="unitConvertFrom">
                         <option></option>
-                        <option value="Centimetros">Centimetros</option>
-                        <option value="Metros">Metros</option>
+                        <option value="millimeters">Millimeters</option>
+                        <option value="centimeters">Centimeters</option>
+                        <option value="meters">Meters</option>
+                        <option value="kilometers">Kilometers</option>
+                        <option value="inches">Inches</option>
+                        <option value="foots">Foots</option>
+                        <option value="yards">Yards</option>
+                        <option value="miles">Miles</option>
                     </select>
                 </div>
                 <div class="textInput">
                     <label for="unitConvertTo">Unit to Convert to</label>
                     <select name="unitConvertTo" id="unitConvertTo">
                         <option></option>
-                        <option value="Centimetros">Centimetros</option>
-                        <option value="Metros">Metros</option>
+                        <option value="millimeters">Millimeters</option>
+                        <option value="centimeters">Centimeters</option>
+                        <option value="meters">Meters</option>
+                        <option value="kilometers">Kilometers</option>
+                        <option value="inches">Inches</option>
+                        <option value="foots">Foots</option>
+                        <option value="yards">Yards</option>
+                        <option value="miles">Miles</option>
                     </select>
                 </div>
                 <input id="endButton" type="submit" value="Convert">
             </form>
+            <div class="resultBox close">
+                <p>Result of your calculation</p>
+                <p id="resultText">20ft = 1000cm</p>
+                <button id="resetButton">Reset</button>
+            </div>
         </main>
     </div>
 </body>
