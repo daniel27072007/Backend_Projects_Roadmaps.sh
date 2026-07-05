@@ -18,19 +18,36 @@
             </div>
         </header>
         <main>
-            <div class="textInput">
-                <label for="unitDigits">Enter the temperature to convert</label>
-                <input type="text" name="unitDigits" id="unitDigits">
+            <form action="/convert-temperature" method="get" target="_self" class="temperatureForm">
+                <div class="textInput">
+                    <label for="unitDigits">Enter the temperature to convert</label>
+                    <input type="number" name="unitDigits" id="unitDigits">
+                </div>
+                <div class="textInput">
+                    <label for="unitConvertFrom">Unit to Convert from</label>
+                    <select name="unitConvertFrom" id="unitConvertFrom">
+                        <option></option>
+                        <option value="°C">Celcius</option>
+                        <option value="°F">Fahrenheit</option>
+                        <option value="°K">Kelvin</option>
+                    </select>
+                </div>
+                <div class="textInput">
+                    <label for="unitConvertTo">Unit to Convert to</label>
+                    <select name="unitConvertTo" id="unitConvertTo">
+                        <option></option>
+                        <option value="°C">Celcius</option>
+                        <option value="°F">Fahrenheit</option>
+                        <option value="°K">Kelvin</option>
+                    </select>
+                </div>
+                <input id="endButton" type="submit" value="Convert">
+            </form>
+            <div class="resultBox close">
+                <p>Result of your calculation</p>
+                <p id="resultText">20ft = 1000cm</p>
+                <button id="resetButton">Reset</button>
             </div>
-            <div class="textInput">
-                <label for="unitConvertFrom">Unit to Convert from</label>
-                <input type="text" name="unitConvertFrom" id="unitConvertFrom">
-            </div>
-            <div class="textInput">
-                <label for="unitConvertTo">Unit to Convert to</label>
-                <input type="text" name="unitConvertTo" id="unitConvertTo">
-            </div>
-            <button id="endButton">Convert</button>
         </main>
     </div>
 </body>
