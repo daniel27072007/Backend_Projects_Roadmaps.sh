@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unit Converter</title>
-    <link rel="stylesheet" href="stylesheet.css">
-    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="../Style/stylesheet.css">
+    <!-- <script src="main.js" defer></script> -->
 </head>
 <body>
     <div class="settings">
@@ -13,36 +13,32 @@
             <h1 id="Title">Unit Converter</h1>
             <div class="unitsTabs">
                 <button id="lengthButton"><a href="length.html">Length</a></button>
-                <button id="weightButton"><a href="weight.html" id="selectedTab">Weight</a></button>
-                <button id="temperatureButton"><a href="temperature.html">Temperature</a></button>
+                <button id="weightButton"><a href="weight.html">Weight</a></button>
+                <button id="temperatureButton"><a href="temperature.html" id="selectedTab">Temperature</a></button>
             </div>
         </header>
         <main>
-            <form action="/convert-weight" method="get" target="_self" class="weightForm">
+            <form action="/convert-temperature" method="get" target="_self" class="temperatureForm">
                 <div class="textInput">
-                    <label for="unitDigits">Enter the weight to convert</label>
+                    <label for="unitDigits">Enter the temperature to convert</label>
                     <input type="number" name="unitDigits" id="unitDigits">
                 </div>
                 <div class="textInput">
                     <label for="unitConvertFrom">Unit to Convert from</label>
                     <select name="unitConvertFrom" id="unitConvertFrom">
                         <option></option>
-                        <option value="mg">Milligrams</option>
-                        <option value="g">Grams</option>
-                        <option value="kg">Kilograms</option>
-                        <option value="oz">Ounces</option>
-                        <option value="lb">Pounds</option>
+                        <option value="°C">Celcius</option>
+                        <option value="°F">Fahrenheit</option>
+                        <option value="°K">Kelvin</option>
                     </select>
                 </div>
                 <div class="textInput">
                     <label for="unitConvertTo">Unit to Convert to</label>
                     <select name="unitConvertTo" id="unitConvertTo">
                         <option></option>
-                        <option value="mg">Milligrams</option>
-                        <option value="g">Grams</option>
-                        <option value="kg">Kilograms</option>
-                        <option value="oz">Ounces</option>
-                        <option value="lb">Pounds</option>
+                        <option value="°C">Celcius</option>
+                        <option value="°F">Fahrenheit</option>
+                        <option value="°K">Kelvin</option>
                     </select>
                 </div>
                 <input id="endButton" type="submit" value="Convert">
