@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unit Converter</title>
-    <link rel="stylesheet" href="../Style/stylesheet.css">
+    <link rel="stylesheet" href="/stylesheet.css">
     <!-- <script src="main.js" defer></script> -->
 </head>
 <body>
@@ -12,13 +12,13 @@
         <header>
             <h1 id="Title">Unit Converter</h1>
             <div class="unitsTabs">
-                <button id="lengthButton"><a href="length.html" id="selectedTab">Length</a></button>
-                <button id="weightButton"><a href="weight.html">Weight</a></button>
-                <button id="temperatureButton"><a href="temperature.html">Temperature</a></button>
+                <button id="lengthButton"><a href="/length" id="selectedTab">Length</a></button>
+                <button id="weightButton"><a href="/weight">Weight</a></button>
+                <button id="temperatureButton"><a href="/temperature">Temperature</a></button>
             </div>
         </header>
         <main>
-            <form action="/convert-length" method="get" target="_self" class="lengthForm">
+            <form action="/convert-length" method="get" target="_self" class="lengthForm <%= result? 'close' : '' %>">
                 <div class="textInput">
                     <label for="unitDigits">Enter the length to convert</label>
                     <input type="number" name="unitDigits" id="unitDigits">
@@ -53,10 +53,12 @@
                 </div>
                 <input id="endButton" type="submit" value="Convert">
             </form>
-            <div class="resultBox close">
-                <p>Result of your calculation</p>
-                <p id="resultText">20ft = 1000cm</p>
-                <button id="resetButton">Reset</button>
+            <div class="resultBox <%= result? '' : 'close' %>">
+                <% if (result) { %>
+                    <p>Result of your calculation</p>
+                    <p id="resultText"><%= result.unitDigits %><%= result.unitConvertFrom %> = <%= result.resultDigits%><%= result.unitConvertTo%></p>
+                    <a id="resetButton" href="/length">Reset</a>
+                <% } %>
             </div>
         </main>
     </div>
