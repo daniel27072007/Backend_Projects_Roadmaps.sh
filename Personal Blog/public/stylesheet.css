@@ -1,0 +1,110 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.close{
+    display: none;
+}
+
+body{
+    min-height: 100vh;
+    width: 100vw;
+    background-color: rgb(60, 60, 247);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7px;
+}
+
+.contentBox{
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 16/19;
+    background-color: white;
+    border: 5px solid black;
+    border-radius: 10px;
+    padding: clamp(4px, 1vw, 30px);
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    /* border: solid; */
+}
+
+#adminPage {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+#header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(3px, 1.5vw, 15px);
+    /* border: solid; */
+}
+
+#title{
+    font-size: clamp(15px, 7vw, 40px);
+    color: black;
+    font-weight: 1200;
+}
+
+#addButton{
+    margin-right: 5px;
+    font-size: clamp(10px, 3vw, 20px);
+    color: black;
+    font-weight: 800;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: clamp(2px, 1vw, 3px);
+    text-decoration: none;
+}
+
+#adminBlogContent{
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3px, 1.5vw, 15px);
+    flex-grow: 1;
+    /* border: solid; */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+#blogBoxAdmin{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border: 2px, solid;
+    border-radius: 5px;
+}
+
+#blogAdminFunctions{
+    /* border: solid; */
+    display: flex;
+    gap: clamp(3px, 3vw, 15px);
+}
+
+#blogBoxAdmin p{
+    font-size: clamp(12px, 3.5vw, 24px);
+    font-weight: 600;
+    color: black;
+}
+
+#blogBoxAdmin a{
+    font-size: clamp(10px, 3vw, 20px);
+    font-weight: 800;
+    color: rgb(148, 148, 148);
+    text-decoration: none;
+    padding: clamp(2px, 1vw, 5px);
+}
