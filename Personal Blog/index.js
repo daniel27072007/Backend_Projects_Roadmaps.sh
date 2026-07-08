@@ -9,7 +9,19 @@ app.get('/admin', (req, res)=>{
     res.render('admin');
 });
 
+app.get('/home', (req, res)=>{
+    res.render('home');
+});
+
+app.get('/article', (req, res)=>{
+    res.render('article');
+});
+
+app.get('/edit', (req, res)=>{
+    res.render('edit');
+});
+
 const PORT = 3000
 app.listen(PORT, ()=>{
-    console.log(`Servidor rodando em http://localhost:${PORT}/admin`);
+    console.log(`Servidor rodando em http://localhost:${PORT}/edit`);
 });
