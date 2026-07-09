@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "article-title": "First article",
+    "publishing-date": "2026-07-08",
+    "content": "Forth time is the charm..."
+  },
+  {
+    "id": 2,
+    "article-title": "Second article",
+    "publishing-date": "2026-07-09",
+    "content": "This is truly amazing!!!"
+  },
+  {
+    "id": 3,
+    "article-title": "Third article",
+    "publishing-date": "2026-07-10",
+    "content": "This is truly amazing!!! seriously"
+  },
+  {
+    "id": 4,
+    "article-title": "Forth article",
+    "publishing-date": "2026-07-11",
+    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tristique nisl a urna lacinia, sed sollicitudin diam volutpat. Vestibulum purus massa, suscipit nec nibh id, molestie rhoncus ipsum. Suspendisse pellentesque sed neque sed placerat. Maecenas porttitor, lorem sed placerat elementum, eros augue lacinia risus, ut mollis lectus dolor vitae mauris. Pellentesque semper tellus vitae est tristique placerat. Integer suscipit porta maximus. Suspendisse at dui in leo commodo tincidunt. Duis eget mi diam."
+  },
+  {
+    "id": 5,
+    "article-title": "This is very hard Jesus",
+    "publishing-date": "2026-07-13",
+    "content": "EJS is confusing man, you need to do logic in <% %> and results in <%= %> and also in VSC you have zero help in commands so you dont know very well what to write and if you are able, you dont know if its right..."
+  }
+]

@@ -71,7 +71,7 @@ main{
     text-decoration: none;
 }
 
-#adminBlogContent, #homeBlogContent{
+#adminBlogContent{
     display: flex;
     flex-direction: column;
     gap: clamp(3px, 1.5vw, 15px);
@@ -81,7 +81,7 @@ main{
     padding-right: 5px;
 }
 
-#blogBoxAdmin, #blogBoxHome{
+.blogBoxAdmin{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -91,19 +91,19 @@ main{
     /* border: solid; */
 }
 
-#blogAdminFunctions{
+.blogAdminFunctions{
     /* border: solid; */
     display: flex;
     gap: clamp(3px, 3vw, 15px);
 }
 
-#blogBoxAdmin p, #blogBoxHome{
+.blogBoxAdmin p{
     font-size: clamp(12px, 3.5vw, 24px);
     font-weight: 600;
     color: black;
 }
 
-#blogBoxAdmin a, #lastDate{
+.blogBoxAdmin a{
     font-size: clamp(10px, 3vw, 20px);
     font-weight: 800;
     color: rgb(148, 148, 148);

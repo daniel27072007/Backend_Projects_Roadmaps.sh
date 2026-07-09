@@ -12,44 +12,18 @@
             <div id="adminPage">
                 <div id="header">
                     <h1 id="title">Personal Blog</h1>
-                    <a id="addButton" href="#">+ ADD</a>
+                    <a id="addButton" href="/add">+ ADD</a>
                 </div>
                 <div id="adminBlogContent">
-                    <div id="blogBoxAdmin">
-                        <p>Blog Dummy</p>
-                        <div id="blogAdminFunctions">
-                            <a id="editButton" href="#">Edit</a>
-                            <a id="deleteButton" href="#">Delete</a>
-                        </div>     
-                    </div>
-                    <div id="blogBoxAdmin">
-                        <p>Blog Dummy</p>
-                        <div id="blogAdminFunctions">
-                            <a id="editButton" href="#">Edit</a>
-                            <a id="deleteButton" href="#">Delete</a>
-                        </div>     
-                    </div>
-                    <div id="blogBoxAdmin">
-                        <p>Blog Dummy</p>
-                        <div id="blogAdminFunctions">
-                            <a id="editButton" href="#">Edit</a>
-                            <a id="deleteButton" href="#">Delete</a>
-                        </div>     
-                    </div>
-                    <div id="blogBoxAdmin">
-                        <p>Blog Dummy</p>
-                        <div id="blogAdminFunctions">
-                            <a id="editButton" href="#">Edit</a>
-                            <a id="deleteButton" href="#">Delete</a>
-                        </div>     
-                    </div>
-                    <div id="blogBoxAdmin">
-                        <p>Blog Dummy</p>
-                        <div id="blogAdminFunctions">
-                            <a id="editButton" href="#">Edit</a>
-                            <a id="deleteButton" href="#">Delete</a>
-                        </div>     
-                    </div>
+                    <% blogData.forEach((element)=>{ %>
+                        <div class="blogBoxAdmin">
+                            <p><%= element['article-title']%></p>
+                            <div class="blogAdminFunctions">
+                                <a class="editButton" href="/edit/<%= element.id %>">Edit</a>
+                                <a class="deleteButton" href="#">Delete</a>
+                            </div>     
+                        </div>
+                    <% }); %>
                 </div>
             </div>
         </main>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Blog</title>
+    <link rel="stylesheet" href="/stylesheetAdminFunctions.css">
+</head>
+<body>
+    <div class="contentBox">
+        <main>
+            <div id="header">
+                    <h1 id="title">Add Article</h1>
+            </div>
+            <div id="functionSpace">
+                <form action="/add" method="post" id="functionForm">
+                    <input type="text" name="articleTitle" id="articleTitle" placeholder="Article Title" required>
+                    <input type="date" name="publishingDate" id="publishingDate" placeholder="Publishing Date" required>
+                    <textarea name="content" id="content" placeholder="Content" required></textarea>
+                    <button type="submit" id="submitButton">Add</button>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

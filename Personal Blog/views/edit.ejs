@@ -13,10 +13,10 @@
                     <h1 id="title">Update Article</h1>
             </div>
             <div id="functionSpace">
-                <form action="" id="functionForm">
-                    <input type="text" name="articleTitle" id="articleTitle" placeholder="Article Title">
-                    <input type="date" name="publishingDate" id="publishingDate" placeholder="Publishing Date">
-                    <textarea name="content" id="content" placeholder="Content"></textarea>
+                <form action="/edit/<%= blogData.id %>" method="post" id="functionForm">
+                    <input type="text" name="articleTitle" id="articleTitle" value="<%= blogData['article-title'] %>" required>
+                    <input type="date" name="publishingDate" id="publishingDate" value="<%= blogData['publishing-date'] %>" required>
+                    <textarea name="content" id="content" required><%= blogData.content %></textarea>
                     <button type="submit" id="submitButton">Update</button>
                 </form>
             </div>
