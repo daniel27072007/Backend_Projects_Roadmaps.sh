@@ -10,11 +10,11 @@
     <div class="contentBox">
         <main>
             <div id="header">
-                    <h1 id="title">My First Article</h1>
-                    <p id="subtitleDate">July 8, 2026</p>
+                    <h1 id="title"><%= articleSearched['article-title'] %></h1>
+                    <p id="subtitleDate"><%= formatDate(articleSearched['publishing-date']) %></p>
             </div>
             <div id="articleBlogContent">
-                <p>Dummy Text </p>
+                <p><%= articleSearched.content %></p>
             </div>
         </main>
     </div>

@@ -79,6 +79,13 @@ main{
     color: black;
 }
 
+#blogBoxHome a{
+    font-size: clamp(12px, 3.5vw, 24px);
+    font-weight: 600;
+    color: black;
+    text-decoration: none;
+}
+
 #lastDate{
     font-size: clamp(10px, 3vw, 20px);
     font-weight: 800;

@@ -13,18 +13,14 @@
                     <h1 id="title">Personal Blog</h1>
             </div>
             <div id="homeBlogContent">
-                <div id="blogBoxHome">
-                    <p>Blog Dummy</p>
-                    <div id="blogHomeData">
-                        <p id="lastDate">July 8, 2026</p>
-                    </div>     
-                </div>
-                <div id="blogBoxHome">
-                    <p>Blog Dummy</p>
-                    <div id="blogHomeData">
-                        <p id="lastDate">July 8, 2026</p>
-                    </div>     
-                </div>
+                <% blogData.forEach((element)=>{ %>
+                    <div id="blogBoxHome">
+                        <a href="/article/<%= element.id%>"><%= element['article-title'] %></a>
+                        <div id="blogHomeData">
+                            <p id="lastDate"><%= formatDate(element['publishing-date']) %></p>
+                        </div>     
+                    </div>
+                <% }); %>
             </div>
         </main>
     </div>
