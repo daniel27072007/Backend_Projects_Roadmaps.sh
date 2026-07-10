@@ -32,3 +32,25 @@ export const JSONAddBlog = (filePath, articleTitle, publishingDate, content,enco
     fs.writeFileSync(filePath, JSON.stringify(blogContentJson, null, 2));
     return true;
 };
+
+export const JSONUpdate = (filePath, blogUpdated, blogUpdatedId, encoding = 'utf-8') => {
+    const blogData = JSONRead(filePath)
+    const updatedBlogData = blogData.map((element)=>{
+        if(element.id === blogUpdatedId){
+            return {
+                ...element,
+                ['article-title']: blogUpdated['article-title'],
+                ['publishing-date']: blogUpdated['publishing-date'],
+                content: blogUpdated.content
+            }
+        }
+        return element;
+    });
+    fs.writeFileSync(filePath, JSON.stringify(updatedBlogData, null, 2), encoding);
+};
+
+export const JSONDelete = (filePath, blogDeletedId, encoding = 'utf-8') => {
+    const blogData = JSONRead(filePath);
+    const blogDataUpdated = blogData.filter((element)=> element.id !== Number(blogDeletedId));
+    fs.writeFileSync(filePath, JSON.stringify(blogDataUpdated, null, 2), encoding);
+};

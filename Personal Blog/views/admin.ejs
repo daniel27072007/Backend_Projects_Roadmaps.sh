@@ -20,7 +20,7 @@
                             <p><%= element['article-title']%></p>
                             <div class="blogAdminFunctions">
                                 <a class="editButton" href="/edit/<%= element.id %>">Edit</a>
-                                <a class="deleteButton" href="#">Delete</a>
+                                <a class="deleteButton" href="/admin/<%= element.id %>">Delete</a>
                             </div>     
                         </div>
                     <% }); %>

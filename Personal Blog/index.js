@@ -1,7 +1,7 @@
 import express from 'express';
 import ejs from 'ejs';
 import fs from 'fs';
-import { JSONRead, JSONAddBlog } from './functions/jsonFunctions.js';
+import { JSONRead, JSONAddBlog, JSONUpdate, JSONDelete } from './functions/jsonFunctions.js';
 
 const app = express();
 app.set('view engine', "ejs");
@@ -9,6 +9,11 @@ app.use(express.static('public'));
 app.use(express.urlencoded());
 app.use(express.json());
 
+app.get('/admin/:id', (req, res)=>{
+    const blogId = req.params.id
+    JSONDelete('./data/blogData.json', blogId);;
+    res.redirect('/admin');
+});
 
 app.get('/admin', (req, res)=>{
     const blogData = JSONRead('./data/blogData.json');
@@ -28,6 +33,19 @@ app.get('/edit/:id', (req, res)=>{
     const blogDataFull = JSONRead('./data/blogData.json');
     const blogData = blogDataFull.find((element) => element.id === Number(searchId));
     res.render('edit', { blogData });
+});
+
+app.post('/edit/:id', (req, res)=>{
+    const changedBlogId = req.params.id
+    const { articleTitle, publishingDate, content } = req.body
+    const blogUpdated = {
+        "id": Number(changedBlogId),
+        "article-title": articleTitle,
+        "publishing-date": publishingDate,
+        "content": content
+    }
+    JSONUpdate('./data/blogData.json', blogUpdated, blogUpdated.id);
+    res.redirect('/admin');
 });
 
 app.get('/add', (req, res)=>{
