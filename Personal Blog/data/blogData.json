@@ -28,5 +28,11 @@
     "article-title": "This is very hard Jesus",
     "publishing-date": "2026-07-13",
     "content": "EJS is confusing man, you need to do logic in <% %> and results in <%= %> and also in VSC you have zero help in commands so you dont know very well what to write and if you are able, you dont know if its right..."
+  },
+  {
+    "id": 6,
+    "article-title": "Teste",
+    "publishing-date": "2026-07-11",
+    "content": "adasdadsasd"
   }
 ]
