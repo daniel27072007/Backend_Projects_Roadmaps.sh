@@ -8,4 +8,5 @@ Here are all the projects i did about backend avalible in Roadmaps.sh
     <li><a href="https://roadmap.sh/projects/number-guessing-game">Number Guessing Game</a></li>
     <li><a href="https://roadmap.sh/projects/unit-converter">Unit Converter</a></li>
     <li><a href="https://roadmap.sh/projects/personal-blog">Personal Blog</a></li>
+    <li><a href="https://roadmap.sh/projects/weather-api-wrapper-service">Weather API</a></li>
 </ul>
