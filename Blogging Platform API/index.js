@@ -15,7 +15,6 @@ app.post('/post', async (req, res)=>{
     console.log('post rechead');
     const postData = req.body
     console.log('postData recived!');
-    res.json(postData);
 });
 
 const PORT = 3000
