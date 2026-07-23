@@ -1,6 +1,6 @@
 import express from 'express'
 import { rateLimit } from 'express-rate-limit'
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 import 'dotenv/config'
 
 const app = express();
@@ -23,7 +23,15 @@ mongoose.connect(mongoUri)
         console.error('cannot connect with cluster ', error)
     });
 
+const counterSchema = new mongoose.Schema({
+    id: {type: String, required: true, unique: true},
+    seq: {type: Number, default: 0}
+});
+
+const Counter = mongoose.model('Counter', counterSchema);
+
 const schemaPOST = new mongoose.Schema({
+    id: {type: Number},
     title: {type: String, required: true},
     content: {type: String, required: true},
     category: {type: String, required: true},
@@ -40,12 +48,32 @@ const schemaPOST = new mongoose.Schema({
     timestamps:true
 });
 
+schemaPOST.pre('save', async function () {
+    const documentoPost = this;
+    if (documentoPost.isNew) {
+        try {
+            const contadorAtualizado = await Counter.findOneAndUpdate(
+                { id: 'id' },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true }
+            );
+            documentoPost.id = contadorAtualizado.seq;
+        } catch (error) {
+            throw error;
+        }
+    }
+});
+
 const post = mongoose.model('Post', schemaPOST);
 
 app.post('/post', async (req, res)=>{
     console.log('post rechead');
     try{
-        const newPost = new post(req.body);
+        const postData = {
+            id: undefined,
+            ...req.body
+        }
+        const newPost = new post(postData);
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
         console.log('post saved in the data base!')
