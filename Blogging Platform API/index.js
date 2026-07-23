@@ -45,7 +45,14 @@ const schemaPOST = new mongoose.Schema({
         }
     }
 },{
-    timestamps:true
+    timestamps:true,
+    toJSON:{
+        transform: function (doc, ret) {
+            delete ret._id
+            delete ret.__v
+            return ret
+        }
+    }
 });
 
 schemaPOST.pre('save', async function () {
@@ -55,7 +62,7 @@ schemaPOST.pre('save', async function () {
             const contadorAtualizado = await Counter.findOneAndUpdate(
                 { id: 'id' },
                 { $inc: { seq: 1 } },
-                { new: true, upsert: true }
+                { returnDocument: 'after', upsert: true }
             );
             documentoPost.id = contadorAtualizado.seq;
         } catch (error) {
@@ -67,7 +74,7 @@ schemaPOST.pre('save', async function () {
 const post = mongoose.model('Post', schemaPOST);
 
 app.post('/post', async (req, res)=>{
-    console.log('post rechead');
+    console.log('post found');
     try{
         const postData = {
             id: undefined,
@@ -76,7 +83,7 @@ app.post('/post', async (req, res)=>{
         const newPost = new post(postData);
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
-        console.log('post saved in the data base!')
+        console.log('post saved in the database!')
     }
     catch(error){
         if(error.name === 'ValidationError'){
@@ -90,6 +97,43 @@ app.post('/post', async (req, res)=>{
         res.status(500).json({error: 'Internal server error, failed to save post'})
     }
 });
+
+app.put('/post/:id', async (req, res)=>{
+    console.log('post/id found')
+    try{
+        const idQuery =  Number(req.params.id);
+        if(isNaN(idQuery)){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: 'The id parameter must be a valid number'
+            })
+        }
+        const newData = req.body
+        const updatedPost = await post.findOneAndUpdate(
+            {id: idQuery},
+            {id: idQuery, ...newData},
+            {
+                returnDocument: 'after',
+                overwrite: true,
+                runValidators: true
+            }
+        )
+        if(!updatedPost){
+            return res.status(404).json({ error: 'cannot find this post'});
+        }
+        res.status(200).json(updatedPost);
+        console.log('post updated in the database!')
+    }catch(error){
+        if(error.name === 'ValidationError'){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: error.message
+            })
+        }
+        console.error('Something went wrong with the server', error);
+        res.status(500).json({error: 'internal sever error, failed to update the post'});
+    }
+})
 
 const PORT = 3000
 app.listen(PORT, ()=>{
