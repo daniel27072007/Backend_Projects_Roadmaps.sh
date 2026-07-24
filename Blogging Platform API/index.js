@@ -48,9 +48,14 @@ const schemaPOST = new mongoose.Schema({
     timestamps:true,
     toJSON:{
         transform: function (doc, ret) {
+            const idDoc = ret.id
             delete ret._id
             delete ret.__v
-            return ret
+            delete ret.id
+            return {
+                id: idDoc,
+                ...ret
+            }
         }
     }
 });
@@ -73,7 +78,7 @@ schemaPOST.pre('save', async function () {
 
 const post = mongoose.model('Post', schemaPOST);
 
-app.post('/post', async (req, res)=>{
+app.post('/posts', async (req, res)=>{
     console.log('post found');
     try{
         const postData = {
@@ -98,7 +103,7 @@ app.post('/post', async (req, res)=>{
     }
 });
 
-app.put('/post/:id', async (req, res)=>{
+app.put('/posts/:id', async (req, res)=>{
     console.log('post/id found')
     try{
         const idQuery =  Number(req.params.id);
@@ -132,6 +137,77 @@ app.put('/post/:id', async (req, res)=>{
         }
         console.error('Something went wrong with the server', error);
         res.status(500).json({error: 'internal sever error, failed to update the post'});
+    }
+})
+
+app.delete('/posts/:id', async (req, res)=>{
+    const idQuery = Number(req.params.id)
+    if(isNaN(idQuery)){
+        return res.status(400).json({
+            error: 'Bad Request',
+            message: 'The id must be a number'
+        })
+    }
+    try{
+        const deletedPost = await post.findOneAndDelete(
+            {id: idQuery}
+        )
+        if(!deletedPost){
+            return res.status(404).json({message: 'post not found' })
+        }
+        res.status(204).json({message:'the blog post was successfully deleted'})
+    }catch(error){
+        console.error('something went wrong with the server', error)
+        res.status(500).json({error: 'internal sever error, failed to delete the post'});
+    }
+    
+})
+
+app.get('/posts/:id', async (req, res)=>{
+    const idQuery = Number(req.params.id)
+    if(isNaN(idQuery)){
+        return res.status(400).json({
+            error: 'Bad Request',
+            message: 'The id must be a number'
+        })
+    }
+    try{
+        const postSearchedDB = await post.findOne({id: idQuery})
+        if(!postSearchedDB){
+            return res.status(404).json({message: 'post not found'})
+        }
+        res.status(200).json(postSearchedDB)   
+    }catch(error){
+        console.error('something went wrong with the server', error)
+        res.status(500).json({error: 'internal sever error, failed to get the post'});
+    }
+})
+
+app.get('/posts', async (req, res)=>{
+    if(Object.keys(req.query).length > 0){
+        try{
+            const term = req.query
+            if(!term){
+                return res.status(400).json({
+                    error: 'Bad Request',
+                    message: 'You must put a term to filter'
+                })
+            }
+            const everyPost = await post.find({})
+            res.status(200).json(everyPost)
+        }catch(error){
+            console.error('something went wrong with the server', error)
+            res.status(500).json({error: 'internal sever error, failed to get the post'});
+        }
+    }
+    else{
+        try{
+            const everyPost = await post.find({})
+            res.status(200).json(everyPost)
+        }catch(error){
+            console.error('something went wrong with the server', error)
+            res.status(500).json({error: 'internal sever error, failed to get the post'});
+        }
     }
 })
 
