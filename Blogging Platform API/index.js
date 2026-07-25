@@ -186,15 +186,15 @@ app.get('/posts/:id', async (req, res)=>{
 app.get('/posts', async (req, res)=>{
     if(Object.keys(req.query).length > 0){
         try{
-            const term = req.query
+            const {term} = req.query
             if(!term){
                 return res.status(400).json({
                     error: 'Bad Request',
                     message: 'You must put a term to filter'
                 })
             }
-            const everyPost = await post.find({})
-            res.status(200).json(everyPost)
+            const filteredPosts = await post.find({tags: term})
+            res.status(200).json(filteredPosts)
         }catch(error){
             console.error('something went wrong with the server', error)
             res.status(500).json({error: 'internal sever error, failed to get the post'});
