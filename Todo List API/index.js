@@ -21,7 +21,6 @@ const todoTaskSchema = new mongoose.Schema({
     title: {type: String, required: true},
     description: {type: String, required: true},
 },{
-    timestamps: true,
     toJSON:{
         transform: function (doc, ret){
             const idDoc = ret.id
@@ -61,6 +60,83 @@ const limiterDefault = rateLimit({
 })
 app.use(express.json())
 app.use(limiterDefault);
+
+app.post('/todos', async (req, res)=>{
+    try{
+        const task = {
+            id: undefined,
+            ...req.body
+        }
+        const newTask = new todoTask(task)
+        const savedTask = await newTask.save()
+        res.status(201).json(savedTask);
+    }catch(error){
+        if(error.name === "ValidationError"){
+            console.warn('The data send was incomplete:', error.message);
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: error.message
+            })
+        }
+        console.error('Something went wrong with the server', error.message)
+        res.status(500).json({ error: 'Internal server error, failed to save post'})
+    }
+})
+
+app.put('/todos/:id', async (req, res)=>{
+    try{
+        const idQuery = Number(req.params.id)
+        if(isNaN(idQuery)){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: 'id put in the url must be a number'
+            })
+        }
+        const newData = req.body
+        const updatedTask = await todoTask.findOneAndUpdate(
+            {id: idQuery},
+            {id: idQuery, ...newData},
+            {
+                returnDocument: 'after',
+                overwrite: true,
+                runValidators: true
+            }
+        )
+        if(!updatedTask){
+            return res.status(404).json({ error: 'task not found'})
+        }
+        res.status(200).json(updatedTask)
+    }catch(error){
+        if(error.message === 'ValidationError'){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: error.message
+            })
+        }
+        console.error('Something went wrong with the server', error.message)
+        res.status(500).json({ error: 'Internal server error, failed to update post'})
+    }
+})
+
+app.delete('/todos/:id', async (req, res)=>{
+    try{
+        const idQuery = Number(req.params.id)
+        if(isNaN(idQuery)){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: 'id put in the url must be a number'
+            })
+        }
+        const deletedTask = await todoTask.findOneAndDelete({id: idQuery})
+        if(!deletedTask){
+            return res.status(404).json({ error: 'task not found'})
+        }
+        res.status(204)
+    }catch(error){
+        console.error('something went wrong with the server', error)
+        res.status(500).json({error: 'internal sever error, failed to delete the post'});
+    }
+})
 
 app.listen(3000, ()=>{
     console.log(`Server running on: http://localhost:3000`)
