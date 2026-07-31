@@ -134,7 +134,38 @@ app.delete('/todos/:id', async (req, res)=>{
         res.status(204)
     }catch(error){
         console.error('something went wrong with the server', error)
-        res.status(500).json({error: 'internal sever error, failed to delete the post'});
+        res.status(500).json({error: 'internal sever error, failed to delete the task'});
+    }
+})
+
+app.get('/todos', async (req, res)=>{
+    const page = parseInt(req.query.page)
+    const limit = parseInt(req.query.limit)
+    if(page <= 0 || isNaN(page)){
+            return res.status(400).json({ error: "The parameter 'page' must be a number higher than 0." })
+    }
+    if(limit <= 0 || isNaN(limit)){
+            return res.status(400).json({ error: "The paramter 'limit' must be a number higher than 0." })
+    }
+    const skip = (page - 1) * limit
+    try{
+        const tasksFullNumber = await todoTask.countDocuments({})
+        if(page > Math.ceil(tasksFullNumber/limit)){
+            return res.status(404).json({
+                error: 'Page not found',
+                message: 'the page you input is higher than the last page avalible'
+            })
+        }
+        const tasksPage = await todoTask.find({}).skip(skip).limit(limit)
+        res.status(200).json({
+            "data": tasksPage,
+            "page": page,
+            "limit": limit,
+            "total": tasksFullNumber
+        })
+    }catch(error){
+        console.error('something went wrong with the server', error)
+        res.status(500).json({error: 'internal sever error, failed to get the tasks'});
     }
 })
 
