@@ -2,6 +2,8 @@ import express from 'express'
 import { rateLimit } from 'express-rate-limit'
 import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
+import bcrypt, { compare } from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 //connecting to DB
 const mongoURI = process.env.MONGO_URI_TASKS
@@ -56,13 +58,14 @@ const todoTask = mongoose.model('todoTask', todoTaskSchema)
 const todoUserSchema=  new mongoose.Schema({
     name: {type: String, required: true, unique: true},
     email: {type: String, required: true, unique: true},
-    password: {type: Number, required: true}
+    password: {type: String, required: true}
 },{
     toJSON:{
         transform: function (doc, ret){
             const userID = ret._id
             delete ret.__v
             delete ret._id
+            delete ret.password
             return{
                 _id: userID,
                 ...ret
@@ -85,10 +88,16 @@ app.use(limiterDefault);
 app.post('/register', async (req, res)=>{
     try {
         const user = req.body
+        const bcryptPassword = await bcrypt.hash(user.password, 10)
+        user.password = bcryptPassword
         const newUser = new todoUser(user)
         const savedUser = await newUser.save()
-        //discover how to use tokens
-        res.status(201).json(savedUser)
+        const token = jwt.sign(
+            {userID: savedUser._id},
+            process.env.TOKEN_KEY,
+            {expiresIn: '2h'}
+        )
+        res.status(201).json({token: token})
     }catch(error){
         if(error.name === "ValidationError"){
             console.warn('The data send was incomplete:', error.message);
@@ -106,8 +115,32 @@ app.post('/register', async (req, res)=>{
             }
         }
         console.error('Something went wrong with the server', error.message)
-        res.status(500).json({ error: 'Internal server error, failed to save task'})
+        res.status(500).json({ error: 'Internal server error, failed to register user'})
     }
+})
+
+app.post('/login', async (req, res)=>{
+    const user = req.body
+    if(!user.email || !user.password){
+        return res.status(400).json({
+            error: 'Bad Request',
+            message: 'Email and password are required.'
+        })
+    }
+    const userDatabase = await todoUser.findOne({email: user.email})
+    if(!userDatabase){
+        return res.status(401).json({error: 'Invalid Email or Password.'})
+    }
+    const isPasswordCorrect = await bcrypt.compare(user.password, userDatabase.password)
+    if(!isPasswordCorrect){
+        return res.status(401).json({error: 'Invalid Email or Password.'})
+    }
+    const token = jwt.sign(
+        {userID: userDatabase._id},
+        process.env.TOKEN_KEY,
+        {expiresIn: '2h'}
+    )
+    res.status(200).json({token: token})
 })
 
 app.post('/todos', async (req, res)=>{
