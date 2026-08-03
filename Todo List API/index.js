@@ -4,6 +4,7 @@ import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
 import bcrypt, { compare } from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import timeConvert from './utils/functions'
 
 //connecting to DB
 const mongoURI = process.env.MONGO_URI_TASKS
@@ -26,15 +27,24 @@ const todoTaskSchema = new mongoose.Schema({
     description: {type: String, required: true},
     authorUserID: {type: mongoose.Schema.Types.ObjectId, ref: 'todoUser', required: true}
 },{
+    timestamps: true,
     toJSON:{
         transform: function (doc, ret){
             const idDoc = ret.id
+            const returnCreatedAt = timeConvert(ret.createdAt)
+            const returnUpdatedAt = timeConvert(ret.updatedAt)
             delete ret.__v
             delete ret._id
+            delete ret.authorUserID
             delete ret.id
+            delete ret.createdAt
+            delete ret.updatedAt
+            
             return{
                 id: idDoc,
-                ...ret
+                ...ret,
+                createdAt: returnCreatedAt,
+                updatedAt: returnUpdatedAt
             }
         }
     }
@@ -256,14 +266,35 @@ app.get('/todos', async (req, res)=>{
     const page = parseInt(pageRaw)
     const limit = parseInt(limitRaw)
     if(page <= 0 || isNaN(page)){
-            return res.status(400).json({ error: "The parameter 'page' must be a NUMBER and needs to be higher than 0." })
+        return res.status(400).json({ error: "The parameter 'page' must be a NUMBER and needs to be higher than 0." })
     }
     if(limit <= 0 || isNaN(limit)){
-            return res.status(400).json({ error: "The paramter 'limit' must be a NUMBER and needs to be higher than 0." })
+        return res.status(400).json({ error: "The paramter 'limit' must be a NUMBER and needs to be higher than 0." })
+    }
+    if(limit > 100){
+        return res.status(400).json({ error: "The parameter 'limit' cannot be higher than 100."})
     }
     const skip = (page - 1) * limit
+    //filter or sorting
+    const filter = req.query.filter ?? 'none'
+    const sort = req.query.sort ?? 'old'
+    if (sort !== 'new' && sort !== 'old') {
+        return res.status(400).json({ error: "The parameter 'sort' must be either 'new' or 'old'." })
+    }
+    const mongooseQuery = { authorUserID: req.userID }
+    if(filter !== 'none'){
+        const escapedFilter = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        mongooseQuery.title = { $regex: escapedFilter, $options: 'i'}
+    }
+    const mongooseSort = {}
+    if(sort === 'new'){
+        mongooseSort.createdAt = -1
+    }
+    else{
+        mongooseSort.createdAt = 1
+    }
     try{
-        const tasksFullNumber = await todoTask.countDocuments({ authorUserID: req.userID })
+        const tasksFullNumber = await todoTask.countDocuments(mongooseQuery)
         let totalTasksPages = Math.ceil(tasksFullNumber/limit)
         if(totalTasksPages === 0){
             totalTasksPages = 1;
@@ -274,19 +305,22 @@ app.get('/todos', async (req, res)=>{
                 message: 'the page you input is higher than the last page avalible'
             })
         }
-        const tasksPage = await todoTask.find({ authorUserID: req.userID }).skip(skip).limit(limit)
-        res.status(200).json({
+        const tasksPage = await todoTask.find(mongooseQuery).sort(mongooseSort).skip(skip).limit(limit)
+        return res.status(200).json({
             "data": tasksPage,
             "page": page,
             "limit": limit,
-            "total": tasksFullNumber
+            "total": tasksFullNumber,
+            "totalPages": totalTasksPages
         })
     }catch(error){
         console.error('something went wrong with the server', error)
-        res.status(500).json({error: 'internal sever error, failed to get the tasks'});
+        return res.status(500).json({error: 'internal sever error, failed to get the tasks'});
     }
 })
 
 app.listen(3000, ()=>{
     console.log(`Server running on: http://localhost:3000`)
 })
+
+module.exports = app
