@@ -24,6 +24,7 @@ const todoTaskSchema = new mongoose.Schema({
     id: {type: Number},
     title: {type: String, required: true},
     description: {type: String, required: true},
+    authorUserID: {type: mongoose.Schema.Types.ObjectId, ref: 'todoUser', required: true}
 },{
     toJSON:{
         transform: function (doc, ret){
@@ -85,6 +86,23 @@ const limiterDefault = rateLimit({
 app.use(express.json())
 app.use(limiterDefault);
 
+//creating middleware token
+function tokenAuthentication (req, res, next) {
+    const authHeader = req.headers['authorization']
+    const token = authHeader ? authHeader.split(' ')[1] : undefined
+    if(!token){
+        return res.status(401).json({message: "Unauthorized"})
+    }
+    try{
+        const decoded = jwt.verify(token, process.env.TOKEN_KEY)
+        req.userID = decoded.userID
+        next()
+    }catch(error){
+        return res.status(403).json({ error: "Invalid or expired token." })
+    }
+}
+
+//creating rotes
 app.post('/register', async (req, res)=>{
     try {
         const user = req.body
@@ -120,34 +138,42 @@ app.post('/register', async (req, res)=>{
 })
 
 app.post('/login', async (req, res)=>{
-    const user = req.body
-    if(!user.email || !user.password){
-        return res.status(400).json({
-            error: 'Bad Request',
-            message: 'Email and password are required.'
-        })
+    try{
+        const user = req.body
+        if(!user.email || !user.password){
+            return res.status(400).json({
+                error: 'Bad Request',
+                message: 'Email and password are required.'
+            })
+        }
+        const userDatabase = await todoUser.findOne({email: user.email})
+        if(!userDatabase){
+            return res.status(401).json({error: 'Invalid Email or Password.'})
+        }
+        const isPasswordCorrect = await bcrypt.compare(user.password, userDatabase.password)
+        if(!isPasswordCorrect){
+            return res.status(401).json({error: 'Invalid Email or Password.'})
+        }
+        const token = jwt.sign(
+            {userID: userDatabase._id},
+            process.env.TOKEN_KEY,
+            {expiresIn: '2h'}
+        )
+        res.status(200).json({token: token})
+    }catch(error){
+        console.error('Something went wrong with the server', error.message)
+        res.status(500).json({ error: 'Internal server error, failed to login user'}) 
     }
-    const userDatabase = await todoUser.findOne({email: user.email})
-    if(!userDatabase){
-        return res.status(401).json({error: 'Invalid Email or Password.'})
-    }
-    const isPasswordCorrect = await bcrypt.compare(user.password, userDatabase.password)
-    if(!isPasswordCorrect){
-        return res.status(401).json({error: 'Invalid Email or Password.'})
-    }
-    const token = jwt.sign(
-        {userID: userDatabase._id},
-        process.env.TOKEN_KEY,
-        {expiresIn: '2h'}
-    )
-    res.status(200).json({token: token})
 })
+
+app.use(tokenAuthentication)
 
 app.post('/todos', async (req, res)=>{
     try{
         const task = {
             id: undefined,
-            ...req.body
+            ...req.body,
+            authorUserID: req.userID
         }
         const newTask = new todoTask(task)
         const savedTask = await newTask.save()
@@ -175,21 +201,25 @@ app.put('/todos/:id', async (req, res)=>{
             })
         }
         const newData = req.body
+        const task =  await todoTask.findOne({ id: idQuery})
+        if(!task){
+            return res.status(404).json({error: 'task not found'})
+        }
+        if(task.authorUserID.toString() !== req.userID){
+            return res.status(403).json({message: "forbiden"})
+        }
         const updatedTask = await todoTask.findOneAndUpdate(
             {id: idQuery},
-            {id: idQuery, ...newData},
+            {id: idQuery, ...newData, authorUserID: req.userID},
             {
                 returnDocument: 'after',
                 overwrite: true,
                 runValidators: true
             }
         )
-        if(!updatedTask){
-            return res.status(404).json({ error: 'task not found'})
-        }
         res.status(200).json(updatedTask)
     }catch(error){
-        if(error.message === 'ValidationError'){
+        if(error.name === 'ValidationError'){
             return res.status(400).json({
                 error: 'Bad Request',
                 message: error.message
@@ -209,11 +239,11 @@ app.delete('/todos/:id', async (req, res)=>{
                 message: 'id put in the url must be a number'
             })
         }
-        const deletedTask = await todoTask.findOneAndDelete({id: idQuery})
+        const deletedTask = await todoTask.findOneAndDelete({id: idQuery, authorUserID: req.userID})
         if(!deletedTask){
             return res.status(404).json({ error: 'task not found'})
         }
-        res.status(204)
+        res.status(204).end()
     }catch(error){
         console.error('something went wrong with the server', error)
         res.status(500).json({error: 'internal sever error, failed to delete the task'});
@@ -233,7 +263,7 @@ app.get('/todos', async (req, res)=>{
     }
     const skip = (page - 1) * limit
     try{
-        const tasksFullNumber = await todoTask.countDocuments({})
+        const tasksFullNumber = await todoTask.countDocuments({ authorUserID: req.userID })
         let totalTasksPages = Math.ceil(tasksFullNumber/limit)
         if(totalTasksPages === 0){
             totalTasksPages = 1;
@@ -244,7 +274,7 @@ app.get('/todos', async (req, res)=>{
                 message: 'the page you input is higher than the last page avalible'
             })
         }
-        const tasksPage = await todoTask.find({}).skip(skip).limit(limit)
+        const tasksPage = await todoTask.find({ authorUserID: req.userID }).skip(skip).limit(limit)
         res.status(200).json({
             "data": tasksPage,
             "page": page,
