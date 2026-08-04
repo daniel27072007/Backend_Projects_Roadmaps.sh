@@ -4,7 +4,7 @@ import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
 import bcrypt, { compare } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import timeConvert from './utils/functions'
+import { timeConvert } from './utils/functions.js'
 
 //connecting to DB
 const mongoURI = process.env.MONGO_URI_TASKS
@@ -94,7 +94,9 @@ const limiterDefault = rateLimit({
     message: 'You can only do 2 request per second'
 })
 app.use(express.json())
-app.use(limiterDefault);
+if (process.env.NODE_ENV !== 'test') {
+    app.use(limiterDefault);
+}
 
 //creating middleware token
 function tokenAuthentication (req, res, next) {
@@ -319,8 +321,10 @@ app.get('/todos', async (req, res)=>{
     }
 })
 
-app.listen(3000, ()=>{
+if(process.env.NODE_ENV !== 'test'){
+    app.listen(3000, ()=>{
     console.log(`Server running on: http://localhost:3000`)
 })
+}
 
-module.exports = app
+export default app;

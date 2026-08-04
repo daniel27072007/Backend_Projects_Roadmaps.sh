@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "mongoose": "^9.8.0"
   },
   "devDependencies": {
+    "babel-jest": "^30.4.1",
     "jest": "^30.4.2",
     "supertest": "^7.2.2"
   }
