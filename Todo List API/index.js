@@ -7,7 +7,13 @@ import jwt from 'jsonwebtoken'
 import { timeConvert } from './utils/functions.js'
 
 //connecting to DB
-const mongoURI = process.env.MONGO_URI_TASKS
+let mongoURI
+if(process.env.NODE_ENV === 'test'){
+    mongoURI = process.env.MONGO_URI_TASKS_TEST
+}
+else{
+    mongoURI = process.env.MONGO_URI_TASKS
+}
 mongoose.connect(mongoURI)
     .then(()=>{
         console.log('database connected')
