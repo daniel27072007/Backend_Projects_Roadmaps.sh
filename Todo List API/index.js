@@ -1,5 +1,6 @@
 import express from 'express'
 import { rateLimit } from 'express-rate-limit'
+import { slowDown } from 'express-slow-down'
 import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
 import bcrypt, { compare } from 'bcrypt'
@@ -92,19 +93,48 @@ const todoUserSchema=  new mongoose.Schema({
 })
 const todoUser = mongoose.model('todoUser', todoUserSchema)
 
-//configuring rotes
-const app = express();
-const limiterDefault = rateLimit({
-    windowMs: 1000,
-    limit: 2,
-    message: 'You can only do 2 request per second'
+//creating middleware
+//limits and throtlling
+const limiterRegisterLogin = rateLimit({
+    windowMs: 1000 * 60,
+    limit: 5,
+    message: 'You can only do 5 request per minute',
+    skip: () => process.env.NODE_ENV === 'test'
 })
-app.use(express.json())
-if (process.env.NODE_ENV !== 'test') {
-    app.use(limiterDefault);
-}
-
-//creating middleware token
+const slowDownRegisterLogin = slowDown({
+    windowMs: 1000 * 60,
+    delayAfter: 2,
+    delayMs: (hit) => hit * 1000,
+    maxDelayMs: 5000,
+    skip: () => process.env.NODE_ENV === 'test'
+})
+const limitWrite = rateLimit({
+    windowMs: 1000 * 60,
+    limit: 30,
+    message: 'You can only do 30 request per minute',
+    skip: () => process.env.NODE_ENV === 'test'
+})
+const slowDownWrite = slowDown({
+    windowMs: 1000 * 60,
+    delayAfter: 10,
+    delayMs: (hit) => hit * 500,
+    maxDelayMs: 10000,
+    skip: () => process.env.NODE_ENV === 'test'
+})
+const limitGet = rateLimit({
+    windowMs: 1000 * 60,
+    limit: 100,
+    message: 'You can only do 100 request per minute',
+    skip: () => process.env.NODE_ENV === 'test'
+})
+const slowDownGet = slowDown({
+    windowMs: 1000 * 60,
+    delayAfter: 30,
+    delayMs: (hit) => hit * 500,
+    maxDelayMs: 20000,
+    skip: () => process.env.NODE_ENV === 'test'
+})
+//token auth
 function tokenAuthentication (req, res, next) {
     const authHeader = req.headers['authorization']
     const token = authHeader ? authHeader.split(' ')[1] : undefined
@@ -120,8 +150,12 @@ function tokenAuthentication (req, res, next) {
     }
 }
 
+//configuring rotes
+const app = express();
+app.use(express.json())
+
 //creating rotes
-app.post('/register', async (req, res)=>{
+app.post('/register', limiterRegisterLogin, slowDownRegisterLogin, async (req, res)=>{
     try {
         const user = req.body
         const bcryptPassword = await bcrypt.hash(user.password, 10)
@@ -155,7 +189,7 @@ app.post('/register', async (req, res)=>{
     }
 })
 
-app.post('/login', async (req, res)=>{
+app.post('/login',limiterRegisterLogin, slowDownRegisterLogin, async (req, res)=>{
     try{
         const user = req.body
         if(!user.email || !user.password){
@@ -186,7 +220,7 @@ app.post('/login', async (req, res)=>{
 
 app.use(tokenAuthentication)
 
-app.post('/todos', async (req, res)=>{
+app.post('/todos',limitWrite, slowDownWrite, async (req, res)=>{
     try{
         const task = {
             id: undefined,
@@ -209,7 +243,7 @@ app.post('/todos', async (req, res)=>{
     }
 })
 
-app.put('/todos/:id', async (req, res)=>{
+app.put('/todos/:id',limitWrite, slowDownWrite, async (req, res)=>{
     try{
         const idQuery = Number(req.params.id)
         if(isNaN(idQuery)){
@@ -248,7 +282,7 @@ app.put('/todos/:id', async (req, res)=>{
     }
 })
 
-app.delete('/todos/:id', async (req, res)=>{
+app.delete('/todos/:id',limitWrite, slowDownWrite, async (req, res)=>{
     try{
         const idQuery = Number(req.params.id)
         if(isNaN(idQuery)){
@@ -268,7 +302,7 @@ app.delete('/todos/:id', async (req, res)=>{
     }
 })
 
-app.get('/todos', async (req, res)=>{
+app.get('/todos',limitGet, slowDownGet, async (req, res)=>{
     const pageRaw = req.query.page ?? '1'
     const limitRaw = req.query.limit ?? '10'
     const page = parseInt(pageRaw)
