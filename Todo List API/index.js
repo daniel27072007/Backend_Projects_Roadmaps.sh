@@ -93,6 +93,15 @@ const todoUserSchema=  new mongoose.Schema({
 })
 const todoUser = mongoose.model('todoUser', todoUserSchema)
 
+const refreshTokenSchema = new mongoose.Schema({
+    token: { type: String, required: true, unique: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "todoUser", required: true },
+    expiresAt: { type: Date, required: true }
+},{
+    timestamps: true
+})
+const refreshToken = mongoose.model('refreshToken', refreshTokenSchema)
+
 //creating middleware
 //limits and throtlling
 const limiterRegisterLogin = rateLimit({
@@ -189,34 +198,118 @@ app.post('/register', limiterRegisterLogin, slowDownRegisterLogin, async (req, r
     }
 })
 
-app.post('/login',limiterRegisterLogin, slowDownRegisterLogin, async (req, res)=>{
-    try{
-        const user = req.body
-        if(!user.email || !user.password){
+app.post('/login', limiterRegisterLogin, slowDownRegisterLogin, async (req, res) => {
+    try {
+        const user = req.body;
+        if (!user.email || !user.password) {
             return res.status(400).json({
                 error: 'Bad Request',
                 message: 'Email and password are required.'
-            })
+            });
         }
-        const userDatabase = await todoUser.findOne({email: user.email})
-        if(!userDatabase){
-            return res.status(401).json({error: 'Invalid Email or Password.'})
+        
+        const userDatabase = await todoUser.findOne({ email: user.email });
+        if (!userDatabase) {
+            return res.status(401).json({ error: 'Invalid Email or Password.' });
         }
-        const isPasswordCorrect = await bcrypt.compare(user.password, userDatabase.password)
-        if(!isPasswordCorrect){
-            return res.status(401).json({error: 'Invalid Email or Password.'})
+        
+        const isPasswordCorrect = await bcrypt.compare(user.password, userDatabase.password);
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ error: 'Invalid Email or Password.' });
         }
+        
         const token = jwt.sign(
-            {userID: userDatabase._id},
+            { userID: userDatabase._id },
             process.env.TOKEN_KEY,
-            {expiresIn: '2h'}
-        )
-        res.status(200).json({token: token})
-    }catch(error){
-        console.error('Something went wrong with the server', error.message)
-        res.status(500).json({ error: 'Internal server error, failed to login user'}) 
+            { expiresIn: process.env.TOKEN_KEY_EXPIRES }
+        );
+        
+        const tokenRefresh = jwt.sign(
+            { 
+                userID: userDatabase._id,
+                nonce: Math.random() // Evita o erro E11000 de duplicidade no MongoDB nos testes
+            },
+            process.env.REFRESH_TOKEN_KEY,
+            { expiresIn: process.env.REFRESH_TOKEN_KEY_EXPIRES }
+        );
+        
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7);
+        
+        await refreshToken.create({
+            token: tokenRefresh,
+            userId: userDatabase._id,
+            expiresAt: expiresAt
+        }); 
+        
+        return res.status(200).json({ token: token, refreshToken: tokenRefresh });
+    } catch (error) {
+        console.error('Something went wrong with the server', error.message);
+        return res.status(500).json({ error: 'Internal server error, failed to login user' }); 
     }
-})
+});
+
+app.post('/refresh', limiterRegisterLogin, slowDownRegisterLogin, async (req, res) => {
+    try {
+        const { refreshToken: clientRefreshToken } = req.body;
+        
+        if (!clientRefreshToken) {
+            return res.status(400).json({ error: 'Bad Request', message: 'Refresh token not sent' });
+        }
+        
+        const tokenDoc = await refreshToken.findOne({ token: clientRefreshToken });
+        if (!tokenDoc) {
+            return res.status(401).json({ error: 'Invalid refresh token' });
+        }
+        
+        const now = new Date();
+        if (now > tokenDoc.expiresAt) {
+            await refreshToken.deleteOne({ _id: tokenDoc._id });
+            return res.status(401).json({ error: 'Refresh token has expired. You must login again' });
+        }
+        
+        // CORREÇÃO AQUI: Rodamos o verify de forma síncrona/direta usando o próprio bloco try/catch
+        try {
+            const decoded = jwt.verify(clientRefreshToken, process.env.REFRESH_TOKEN_KEY);
+            
+            const newAccessToken = jwt.sign(
+                { userID: decoded.userID },
+                process.env.TOKEN_KEY,
+                { expiresIn: process.env.TOKEN_KEY_EXPIRES }
+            );
+            
+            return res.status(200).json({ token: newAccessToken });
+        } catch (jwtError) {
+            return res.status(401).json({ error: 'Invalid or tampered refresh token' });
+        }
+        
+    } catch (error) {
+        console.error('Something went wrong with the refresh route', error.message);
+        return res.status(500).json({ error: 'Internal server error, failed to refresh token' });
+    }
+});
+
+app.post('/logout', limiterRegisterLogin, slowDownRegisterLogin, async (req, res) => {
+    try {
+        const { refreshToken: clientRefreshToken } = req.body;
+
+        if (!clientRefreshToken) {
+            return res.status(400).json({ error: 'Bad Request', message: 'Refresh token is required for logout.' });
+        }
+
+        const deleteResult = await refreshToken.deleteOne({ token: clientRefreshToken });
+
+        if (deleteResult.deletedCount === 0) {
+            return res.status(401).json({ error: 'Invalid or already invalidated refresh token' });
+        }
+
+        return res.status(200).json({ message: 'Logged out successfully. Session invalidated.' });
+
+    } catch (error) {
+        console.error('Something went wrong with the logout route', error.message);
+        return res.status(500).json({ error: 'Internal server error, failed to logout' });
+    }
+});
 
 app.use(tokenAuthentication)
 
