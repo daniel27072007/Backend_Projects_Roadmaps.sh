@@ -6,7 +6,6 @@ import mongoose, { model } from 'mongoose'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import 'dotenv/config'
-import { type } from 'node:os'
 
 //functions
 const timeFormat = (dateToBeFormated) => {
@@ -56,8 +55,7 @@ const expenseTaskSchema = new mongoose.Schema({
     id: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
     ammount: { type: Number, required: true },
-    category: { type: String, required: true},//see how to force the user to pick at least one of the listed
-    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'expenseUser', required: true}
+    category: { type: String, required: true, enum: {values: [ 'Groceries', 'Leisure', 'Electronics', 'Utilities', 'Clothing', 'Health', 'Others'], message: '{VALUE} is not a valid category'}},
 },{
     timestamps:true,
     toJSON: {
@@ -98,3 +96,48 @@ expenseTaskSchema.pre('save', async function () {
     }
 })
 const expenseTask = mongoose.model('expenseTask', expenseTaskSchema)
+
+//configuring rotes
+const app = express()
+app.use(express.json())
+
+//creating middlewares
+
+const userRotesLimit = rateLimit({
+    windowMs: 1000,
+    limit: 1000,
+    message: 'test',
+    skip: ()=> process.env.NODE_ENV === 'test'
+})
+const userRotesSlowDown = slowDown({
+    windowMs: 1000,
+    delayAfter: 10,
+    delayMs: (hit) => hit * 500,
+    maxDelayMs: 10000,
+    skip: ()=> process.env.NODE_ENV === 'test'
+})
+
+//creating rotes
+
+app.post('/register', userRotesLimit, userRotesSlowDown)
+
+//running the app and exporting it
+if(process.env.NODE_ENV !== 'test'){
+    app.listen(3000, ()=>{
+        console.log('server running on http://localhost:3000')
+    })
+}
+
+export default app
+
+//server.js
+import app from './src/app.js'
+import connectDatabase from './src/config/database.js'
+
+const PORT = process.env.PORT || 3000
+
+connectDatabase()
+
+app.listen(PORT, ()=>{
+    console.log(`server running on http://localhost:${PORT}`)
+})
