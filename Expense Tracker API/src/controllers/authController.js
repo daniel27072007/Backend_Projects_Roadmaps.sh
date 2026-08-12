@@ -1,0 +1,59 @@
+import { expenseUser } from '../models/User.js'
+import { refreshToken } from '../models/Refresh_Token.js'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import 'dotenv/config'
+
+export const registerUser = async (req, res)=>{
+    try {
+        const user = req.body
+        const bcryptPassword = await bcrypt.hash(user.password, 10)
+        const updatedUser = {
+            name: user.name,
+            email: user.email,
+            password: bcryptPassword
+        }
+        const registeredUser = new expenseUser(updatedUser)
+        const savedUser = await registeredUser.save()
+        const tokenAccess = jwt.sign(
+            {userId: savedUser._id},
+            process.env.ACCESS_TOKEN_KEY,
+            {expiresIn: process.env.ACCESS_TOKEN_EXPIRES}
+        )
+        const tokenRefresh = jwt.sign(
+            {userId: savedUser._id},
+            process.env.REFRESH_TOKEN_KEY,
+            {expiresIn: process.env.REFRESH_TOKEN_EXPIRES}
+        )
+        const expiresIn = new Date()
+        expiresIn.setDate(expiresIn.getDate() + 7)
+        await refreshToken.create({
+            refreshToken: tokenRefresh,
+            userId: savedUser._id,
+            expiresIn: expiresIn
+        })
+        return res.status(201).json({'access-token': tokenAccess, 'refresh-token': tokenRefresh})
+    } catch (error) {
+        if(error.name === 'ValidationError'){
+            return res.status(400).json({ error: 'Bad Request', message: 'Name, Email and Password are required' })
+        }
+        if(error.code === 11000){
+            if(error.message.includes('name')){
+                return res.status(400).json({ error: 'Bad Request', message: 'This name was already registered' })
+            }
+            if(error.message.includes('email')){
+                return res.status(400).json({ error: 'Bad Request', message: 'This email was already registered' })
+            }
+        }
+        res.status(500).json({ error: 'something wrong happend when registring the user', error})
+    }
+}
+
+export const loginUser = async (req, res)=>{
+    try {
+        const user = req.body
+
+    } catch (error) {
+        
+    }
+}
