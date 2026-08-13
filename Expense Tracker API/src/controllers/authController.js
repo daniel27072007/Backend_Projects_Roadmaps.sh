@@ -26,12 +26,12 @@ export const registerUser = async (req, res)=>{
             process.env.REFRESH_TOKEN_KEY,
             {expiresIn: process.env.REFRESH_TOKEN_EXPIRES}
         )
-        const expiresIn = new Date()
-        expiresIn.setDate(expiresIn.getDate() + 7)
+        const expiresAt = new Date()
+        expiresAt.setHours(expiresAt.getHours() + 2)
         await refreshToken.create({
             refreshToken: tokenRefresh,
             userId: savedUser._id,
-            expiresIn: expiresIn
+            expiresAt: expiresAt
         })
         return res.status(201).json({'access-token': tokenAccess, 'refresh-token': tokenRefresh})
     } catch (error) {
@@ -75,12 +75,12 @@ export const loginUser = async (req, res)=>{
             { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
         )
         await refreshToken.deleteMany({ userId: userDatabase._id })
-        const expiresIn = new Date()
-        expiresIn.setDate(expiresIn.getDate() + 7)
+        const expiresAt = new Date()
+        expiresAt.setHours(expiresAt.getHours() + 2)
         await refreshToken.create({
             refreshToken: tokenRefresh,
             userId: userDatabase._id,
-            expiresIn: expiresIn
+            expiresAt: expiresAt
         })
         return res.status(200).json({ 'access-token': tokenAccess, 'refresh-token': tokenRefresh})
     } catch (error) {
@@ -88,5 +88,52 @@ export const loginUser = async (req, res)=>{
             return res.status(400).json({ error: 'Bad Request', message: error.message})
         }
         res.status(500).json({ error: 'Something went wrong with the server when login the user.', error})
+    }
+}
+
+export const refreshUser = async (req, res)=>{
+    try {
+        const { refreshToken: clientRefreshToken } = req.body;
+        if(!clientRefreshToken){
+            return res.status(400).json({ error: 'Bad Request', message: 'Refresh token not sent'})
+        }
+        const refreshTokenDoc = await refreshToken.findOne({ refreshToken: clientRefreshToken})
+        if(!refreshTokenDoc){
+            return res.status(401).json({ error: 'Invalid refresh token' });
+        }
+        const now = new Date()
+        if(now > refreshTokenDoc.expiresAt){
+            await refreshToken.deleteOne({ _id: refreshTokenDoc._id })
+            return res.status(401).json({ error: 'Refresh token has expired. You must login again' });
+        }
+        try {
+            const decoded = jwt.verify(clientRefreshToken, process.env.REFRESH_TOKEN_KEY)
+            const accessToken = jwt.sign(
+                {userId: decoded.userId},
+                process.env.ACCESS_TOKEN_KEY,
+                {expiresIn: process.env.ACCESS_TOKEN_EXPIRES}
+            )
+            return res.status(200).json({ 'access-token': accessToken })
+        } catch (errorJwt) {
+            return res.status(401).json({ error: 'Invalid or tampered refresh token' });
+        }   
+    } catch (error) {
+        res.status(500).json({ error: 'Something went wrong with the server when refreshing access token of the user.', error})
+    }
+}
+
+export const logoutUser = async (req, res)=>{
+    try{
+        const { 'refresh-token': clientRefreshToken } = req.body
+        if(!clientRefreshToken){
+            return res.status(400).json({ error: 'Bad Request', message: 'Refresh token not sent'})
+        }
+        const refreshTokenToDelete = await refreshToken.deleteOne({ refreshToken: clientRefreshToken })
+        if(refreshTokenToDelete.deletedCount === 0){
+            return res.status(401).json({ error: 'Invalid or already invalidated refresh token' });
+        }
+        return res.status(200).json({ message: 'Logged out successfully. Session invalidated.' });
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal server error, failed to logout' }); 
     }
 }
