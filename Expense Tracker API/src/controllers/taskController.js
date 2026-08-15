@@ -4,11 +4,10 @@ import { expenseTask } from '../models/Task.js'
 export const createExpense = async (req, res)=>{
     try{
         const data = {
-            id: undefined,
             ...req.body,
             authorId: req.userId
         }
-        const newExpense = expenseTask(data)
+        const newExpense = new expenseTask(data)
         const savedExpense = await newExpense.save()
         return res.status(201).json(savedExpense)
     } catch (error) {
@@ -33,13 +32,13 @@ export const updateExpense = async (req, res)=>{
         if(!data){
             return res.status(404).json({ error: "Expense not found" })
         }
-        if(data.authorId !== req.userId){
+        if(data.authorId.toString() !== req.userId.toString()){
             return res.status(403).json({ error: "Forbiden" })            
         }
-        const updatedExpense = await expenseTask.findByIdAndUpdate(
-            {id: idQuery},
-            {id: idQuery, ...newData, authorId: req.userId},
-            {returnDocument: 'after', overwrite: true, runValidators: true}
+        const updatedExpense = await expenseTask.findOneAndUpdate(
+            { id: idQuery },
+            { $set: newData },
+            { new: true, runValidators: true }
         )
         return res.status(200).json(updatedExpense)
     } catch (error) {
@@ -62,11 +61,11 @@ export const deleteExpense = async (req, res)=>{
         if(idQuery < 0){
             return res.status(400).json({ error: "Bad Request",  message: "The id must be a number higher than 0"})
         }
-        const deletedExpense = await expenseTask.findOneAndDelete({id: idQuery, authorUserID: req.userID})
-        if(!deleteExpense){
+        const deletedExpense = await expenseTask.findOneAndDelete({id: idQuery, authorId: req.userId})
+        if(!deletedExpense){
             return res.status(404).json({ error: "Expense not found"})
         }
-        return res.status(401).json({ message: 'Task deleted with successs' })
+        return res.status(204).send()
     } catch (error) {
         res.status(500).json({ error: 'Internal server error, failed to delete the expense'})
     }
@@ -91,24 +90,47 @@ export const readExpense = async (req, res)=>{
     // checking / adding filter and sort
     const filter = req.query.filter ?? 'none'
     const sort = req.query.sort ?? 'old'
-    if(sort !== 'new' || sort !== 'old'){
+    if(sort !== 'new' && sort !== 'old'){
         return res.status(400).json({ error: "The parameter 'sort' must be either 'new' or 'old'." })
     }
     const mongooseQuery = { authorId: req.userId }
     if(filter !== 'none'){
-        const escapedFilter = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        mongooseQuery.title = { $regex: escapedFilter, $options: 'i'}
+        if(filter === 'pastWeek'){
+            const pastWeek = new Date()
+            pastWeek.setDate(pastWeek.getDate()-7)
+            mongooseQuery.createdAt = { $gte: pastWeek }
+        }
+        else if(filter === 'pastMonth'){
+            const pastMonth = new Date()
+            pastMonth.setMonth(pastMonth.getMonth()-1)
+            mongooseQuery.createdAt = { $gte: pastMonth }
+        }
+        else if(filter === 'last3Months'){
+            const threeMonthsAgo = new Date()
+            threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3)
+            mongooseQuery.createdAt = { $gte: threeMonthsAgo }
+        }
+        else if(filter === 'Custom'){
+            const { startDate, endDate } = req.query
+            if(!startDate || !endDate){
+                return res.status(400).json({ error: 'Bad Request', message: "For the Custom filter you must also put as params 'startDate' and 'endDate'."})
+            }
+            mongooseQuery.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate)}
+        }
+        else{
+            return res.status(400).json({ error: "Invalid filter. Use 'pastWeek', 'pastMonth', 'last3Months', 'Custom', 'none' or not input a filter" })
+        }
     }
     const mongooseSort = {}
     if(sort === 'new'){
-        mongooseSort.createAt = -1
+        mongooseSort.createdAt = -1
     }
     else{
-        mongooseSort.createAt = 1
+        mongooseSort.createdAt = 1
     }
     try {
         const expenseFullNumber = await expenseTask.countDocuments(mongooseQuery)
-        let totalExpensePages = Math.celi(expenseFullNumber/limit)
+        let totalExpensePages = Math.ceil(expenseFullNumber/limit)
         if(totalExpensePages === 0){
             totalExpensePages = 1
         }
@@ -124,6 +146,6 @@ export const readExpense = async (req, res)=>{
             'total-pages': totalExpensePages
         })
     } catch (error) {
-        
+        res.status(500).json({ error: 'Internal server error, failed to get the expenses'})
     }
 }

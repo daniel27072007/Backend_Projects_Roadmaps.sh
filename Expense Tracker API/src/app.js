@@ -1,11 +1,14 @@
 import express from 'express'
 import authRouter from "../src/routes/authRoutes.js"
+import taskRouter from './routes/taskRoutes.js'
 
 const app = express()
 
 app.use(express.json())
 
 app.use(authRouter)
+
+app.use(taskRouter)
 
 app.use((error, req, res, next)=>{
     console.error('Unexpected server error', error.stack)
