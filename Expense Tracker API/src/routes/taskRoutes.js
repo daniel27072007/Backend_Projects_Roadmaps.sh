@@ -7,9 +7,9 @@ const taskRouter = Router()
 
 taskRouter.post('/expenses', slowDownWrite, limitWrite, authMiddleware, createExpense)
 
-taskRouter.put('/expenses', slowDownWrite, limitWrite, authMiddleware, updateExpense)
+taskRouter.put('/expenses/:id', slowDownWrite, limitWrite, authMiddleware, updateExpense)
 
-taskRouter.delete('/expenses', slowDownWrite, limitWrite, authMiddleware, deleteExpense)
+taskRouter.delete('/expenses/:id', slowDownWrite, limitWrite, authMiddleware, deleteExpense)
 
 taskRouter.get('/expenses', slowDownGet, limitGet, authMiddleware, readExpense)
 

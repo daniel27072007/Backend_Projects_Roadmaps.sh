@@ -127,7 +127,7 @@ export const refreshUser = async (req, res)=>{
 
 export const logoutUser = async (req, res)=>{
     try{
-        const { 'refresh-token': clientRefreshToken } = req.body
+        const { refreshToken: clientRefreshToken } = req.body
         if(!clientRefreshToken){
             return res.status(400).json({ error: 'Bad Request', message: 'Refresh token not sent'})
         }

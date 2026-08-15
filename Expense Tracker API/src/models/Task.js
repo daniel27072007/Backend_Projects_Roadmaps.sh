@@ -4,7 +4,7 @@ import { timeFormat } from "../utils/functions.js";
 import { expenseUser } from "./User.js"
 
 const expenseTaskSchema = new mongoose.Schema({
-    id: { type: Number, required: true, unique: true },
+    id: { type: Number, unique: true },
     name: { type: String, required: true },
     ammount: { type: Number, required: true },
     category: { type: String, required: true, enum: {values: [ 'Groceries', 'Leisure', 'Electronics', 'Utilities', 'Clothing', 'Health', 'Others'], message: '{VALUE} is not a valid category'}},
