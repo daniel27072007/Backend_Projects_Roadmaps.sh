@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { expenseUser } from '../models/User.js'
 import { refreshToken } from '../models/Refresh_Token.js'
+import { json } from 'node:stream/consumers'
 
 describe('authController - registerUser', ()=>{
     it('should return status 201, the access token and the refresh token to the user if the operation was a success', async () => {
@@ -51,19 +52,133 @@ describe('authController - registerUser', ()=>{
     })
 
     it('should return status 400 since the user sended a bad request. Because Name, Email and Password are required', async () => {
-        
+        const req = {
+            body: {
+                //you can omit every proprety in the body to test
+                email: 'tester01@gmail.com',
+                password: 'TESTER01'
+            }
+        }
+        const res = {
+            statusCode: null,
+            bodyData: null,
+            status: function (code) {
+                this.statusCode = code
+                return this
+            },
+            json: function (data) {
+                this.bodyData = data
+                return this
+            }
+        }
+        await registerUser(req, res)
+        assert.strictEqual(res.statusCode, 400)
+        assert.strictEqual(res.bodyData.error, 'Bad Request');
+        assert.strictEqual(res.bodyData.message, 'Name, Email and Password are required');
     })
 
     it('should return status 400 since the user sended a bad request. Because that Name was already registered', async () => {
-        
+        mock.method(bcrypt, 'hash', async ()=>{
+            return 'mock-crypt-password'
+        })
+        mock.method(expenseUser.prototype, 'save', async ()=>{
+            const duplicateError = new Error('E11000 duplicate key error collection: test.users index: name_1 dup key')
+            duplicateError.code = 11000
+            throw duplicateError
+        })
+        const req = {
+            body: {
+                name: 'tester01',
+                email: 'tester01@gmail.com',
+                password: 'TESTER01'
+            }
+        }
+        const res = { 
+            statusCode: null,
+            bodyData: null,
+            status: function (code) {
+                this.statusCode = code
+                return this
+            },
+            json: function (data) {
+                this.bodyData = data
+                return this
+            }
+        }
+        await registerUser(req, res)
+        assert.strictEqual(res.statusCode, 400)
+        assert.strictEqual(res.bodyData.error, 'Bad Request')
+        assert.strictEqual(res.bodyData.message, 'This name was already registered')
     })
 
     it('should return status 400 since the user sended a bad request. Because that Email was already registered', async () => {
-        
+        mock.method(bcrypt, 'hash', async ()=>{
+            return 'mock-crypt-password'
+        })
+        mock.method(expenseUser.prototype, 'save', async ()=>{
+            const duplicateError = new Error('E11000 duplicate key error collection: test.users index: email_1 dup key')
+            duplicateError.code = 11000
+            throw duplicateError
+        })
+        const req = {
+            body: {
+                name: 'tester01',
+                email: 'tester01@gmail.com',
+                password: 'TESTER01'
+            }
+        }
+        const res = { 
+            statusCode: null,
+            bodyData: null,
+            status: function (code) {
+                this.statusCode = code
+                return this
+            },
+            json: function (data) {
+                this.bodyData = data
+                return this
+            }
+        }
+        await registerUser(req, res)
+        assert.strictEqual(res.statusCode, 400)
+        assert.strictEqual(res.bodyData.error, 'Bad Request')
+        assert.strictEqual(res.bodyData.message, 'This email was already registered')
     })
 
     it('should return status 500, Because of a internal function error', async () => {
-        
+        mock.method(bcrypt, 'hash', async () => {
+            return 'crypt-password-false'
+        })
+        mock.method(expenseUser.prototype, 'save', async () => {
+            throw new Error('Database internal error')
+        })
+        mock.method(jwt, 'sign', async () => {
+            return 'mock-token-false'
+        })
+        mock.method(refreshToken, 'create', async () =>{
+            return { success: true }
+        })
+        const req = {
+            body: {
+                name: 'tester01',
+                email: 'tester01@gmail.com',
+                password: 'TESTER01'
+            }
+        }
+        const res = { 
+            statusCode: null,
+            bodyData: null,
+            status: function (code) {
+                this.statusCode = code
+                return this
+            },
+            json: function (data) {
+                this.bodyData = data
+                return this
+            }
+        }
+        await registerUser(req, res)
+        assert.strictEqual(res.statusCode, 500)
     })
 })
 

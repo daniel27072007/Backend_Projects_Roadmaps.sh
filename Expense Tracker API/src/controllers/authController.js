@@ -8,6 +8,12 @@ import mongoose from 'mongoose'
 export const registerUser = async (req, res)=>{
     try {
         const user = req.body
+        if (!user.name || !user.email || !user.password) {
+            return res.status(400).json({ 
+                error: 'Bad Request', 
+                message: 'Name, Email and Password are required' 
+            });
+        }
         const bcryptPassword = await bcrypt.hash(user.password, 10)
         const updatedUser = {
             name: user.name,
@@ -35,9 +41,6 @@ export const registerUser = async (req, res)=>{
         })
         return res.status(201).json({'access-token': tokenAccess, 'refresh-token': tokenRefresh})
     } catch (error) {
-        if(error.name === 'ValidationError'){
-            return res.status(400).json({ error: 'Bad Request', message: 'Name, Email and Password are required' })
-        }
         if(error.code === 11000){
             if(error.message.includes('name')){
                 return res.status(400).json({ error: 'Bad Request', message: 'This name was already registered' })
@@ -46,7 +49,7 @@ export const registerUser = async (req, res)=>{
                 return res.status(400).json({ error: 'Bad Request', message: 'This email was already registered' })
             }
         }
-        res.status(500).json({ error: 'something wrong happend when registring the user', error})
+        res.status(500).json({ error: error, message: 'something wrong happend when registring the user'})
     }
 }
 
