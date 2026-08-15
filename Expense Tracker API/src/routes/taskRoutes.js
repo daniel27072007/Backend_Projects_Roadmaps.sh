@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createExpense, updateExpense, deleteExpense, readExpense } from "../controllers/taskController";
-import { authMiddleware } from "../middlewares/authMiddleware";
-import { limitWrite, slowDownWrite, limitGet, slowDownGet } from "../middlewares/rateLimiter";
+import { createExpense, updateExpense, deleteExpense, readExpense } from "../controllers/taskController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { limitWrite, slowDownWrite, limitGet, slowDownGet } from "../middlewares/rateLimiter.js";
 
 const taskRouter = Router()
 

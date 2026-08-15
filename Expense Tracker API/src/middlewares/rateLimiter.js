@@ -10,7 +10,7 @@ export const limiterAuthorization = rateLimit({
 export const slowDownAuthorization = slowDown({
     windowMs: 1000 * 60,
     delayAfter: 2,
-    delayMs: 1000,
+    delayMs: () => 1000,
     maxDelayMs: 5000,
     skip: () => process.env.NODE_ENV === 'test'
 })
@@ -23,7 +23,7 @@ export const limitWrite = rateLimit({
 export const slowDownWrite = slowDown({
     windowMs: 1000 * 60,
     delayAfter: 10,
-    delayMs: 500,
+    delayMs: () => 500,
     maxDelayMs: 10000,
     skip: () => process.env.NODE_ENV === 'test'
 })
@@ -36,7 +36,7 @@ export const limitGet = rateLimit({
 export const slowDownGet = slowDown({
     windowMs: 1000 * 60,
     delayAfter: 30,
-    delayMs: 500,
+    delayMs: () => 500,
     maxDelayMs: 20000,
     skip: () => process.env.NODE_ENV === 'test'
 })
