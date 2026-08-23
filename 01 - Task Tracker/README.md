@@ -1,109 +1,87 @@
 # Task Tracker CLI
 
-A simple Command Line Interface (CLI) tool to manage and track your daily tasks. Built using pure Node.js without any external libraries or frameworks, strictly adhering to the project requirements from roadmap.sh.
+A lightweight, native Command Line Interface (CLI) application engineered to track and manage personal to-do lists through persistent local file storage. Built strictly with vanilla JavaScript on the Node.js runtime environment, this tool executes deep CRUD pipelines directly from the terminal prompt using positional shell arguments.
 
 ---
 
-## Installation and Setup
+## Technical Challenges Overcame
 
-Follow these steps to download and configure the project on your local machine:
+To complete this specific Roadmap.sh project requirements, the implementation focused on mastering core backend system interactions, storage logic, and parameter mapping workflows:
 
-### 1. Prerequisites
-Ensure you have Node.js installed on your computer. You can check your version by running the following command in your terminal:
-```bash
-node -v
-```
+* **File Handling & State Checks (Node.js fs module):** Programmed robust asynchronous file read and synchronous write pipelines using native system tools. Implemented validation hooks to dynamically check data path status (`fs.existsSync`) and gracefully initialize empty collections if the storage file is clean or missing.
+* **JSON Parsing and Data Modeling:** Managed offline storage persistence by parsing unstructured text content into live memory arrays and stringifying mutated array snapshots back to the persistent `tasks.json` database layer. Engineered strict object models incorporating continuous index keys alongside auto-generated JavaScript ISO time vectors (`createdAt`, `updatedAt`).
+* **CLI Routing (Command-Line Arguments):** Built a custom terminal argument routing engine powered by `process.argv` parsing arrays. Structured multi-branch command handlers using JavaScript switch trees to translate shell triggers (`add`, `update`, `delete`, `mark-*`, `list`) directly into discrete data mutation workflows.
+* **Data Stream Filtering & Mutations:** Developed granular array filtration workflows leveraging native array prototypes (`.map` and `.filter`). The logic dynamically strips items matching specialized search keys or remaps targeted field parameters concurrently based on positional ID parameters.
 
-### 2. Download the Project
-Clone this repository from GitHub or download the source code as a ZIP file:
+---
+
+## Core Competencies Demonstrated
+
+* **Command Line Interface (CLI) Production:** Practical mastery building standalone console utilities capable of intercepting, parsing, and execution validation loops natively.
+* **Persistent Local I/O Storage Management:** Comprehensive handling of reading, writing, updating, and formatting plain-text data layouts securely.
+* **System Component Isolation:** Structuring modular backend systems by dividing main interface controllers (`index.js`) completely away from structural helper algorithms (`functions.js`).
+
+---
+
+## Application Features
+
+* **Complete Automated Task CRUD Engine:** Terminal hooks enabling developers to add, update descriptions, delete indices, or list all recorded items natively.
+* **Lifecycle State Tracking:** Granular progress identifiers changing specific task fields cleanly between `todo`, `in-progress`, and `done`.
+* **Positional Database Filtering:** Advanced view filters capable of returning specific output blocks depending on execution tokens (`task-cli list done`, `todo`, or `in-progress`).
+
+---
+
+## Installation and Deployment
+
+This application operates completely as a global executable backend tool using the native Node.js runtime framework.
+
+### 1. Clone the Repository
+Execute the git command inside your terminal (replace with your specific repository URL copied from GitHub):
 ```bash
 git clone https://github.com
 ```
-If you downloaded the ZIP file, extract the contents into a folder of your choice.
 
-### 3. Navigate to the Project Directory
-Open your terminal and change your current directory to the project folder:
+### 2. Navigate to the Directory
+Switch to the project root folder:
 ```bash
-cd "Path/To/Your/Task Tracker CLI"
+cd task-tracker-cli
 ```
 
-### 4. Link the Command Globally
-To use the short `task-cli` command anywhere in your terminal instead of running `node index.js`, execute:
+### 3. Global Binary Registration
+This package implements standard configuration maps (`bin` configurations inside `package.json`) allowing you to link the binary utility globally into your system shell environment. Run this command inside your terminal:
 ```bash
 npm link
 ```
-Note for Windows (PowerShell) users: If you encounter a script execution security error, open PowerShell as an Administrator, run `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`, type `Y`, and then try running `npm link` again inside your project terminal.
+*Note for Windows users:* If your terminal blocks global execution due to security rules, open PowerShell as an Administrator once, execute `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`, press `Y`, and retry linking the script.
+
+### 4. Local CLI Execution
+Once linked globally, call the utility script directly by name anywhere inside your console file path:
+
+* **Add a new task:**
+  ```bash
+  task-cli add "Buy groceries"
+  ```
+* **Update task description:**
+  ```bash
+  task-cli update 1 "Buy groceries and cook dinner"
+  ```
+* **Alter lifecycle tracking states:**
+  ```bash
+  task-cli mark-in-progress 1
+  task-cli mark-done 1
+  ```
+* **Filter storage collections:**
+  ```bash
+  task-cli list
+  task-cli list in-progress
+  ```
 
 ---
 
-## Usage
+## Author
 
-Once the command is linked, you can manage your tasks by executing the following commands directly in your terminal:
+Developed by **Daniel Belculfine**
 
-### Add a New Task
-Creates a new task with a default status of "todo":
-```bash
-task-cli add "Buy groceries"
-```
-Output example: `Task added successfully (ID: 1)`
-
-### Update a Task Description
-Modifies the description text of an existing task using its ID:
-```bash
-task-cli update 1 "Buy groceries and cook dinner"
-```
-
-### Delete a Task
-Permanently removes a task from your storage file by its ID:
-```bash
-task-cli delete 1
-```
-
-### Change Task Status
-You can update the progress tracking state of any task using its ID:
-```bash
-# Mark a task as in progress
-task-cli mark-in-progress 1
-
-# Mark a task as done
-task-cli mark-done 1
-```
-
-### List Tasks
-You can view all your saved tasks or filter them based on their current status:
-```bash
-# List all tasks
-task-cli list
-
-# List only tasks that have not been started
-task-cli list todo
-
-# List only tasks currently in progress
-task-cli list in-progress
-
-# List only completed tasks
-task-cli list done
-```
-
----
-
-## Data Structure
-
-Your tasks are automatically saved inside a file named `tasks.json` in the root directory of the project, using the following schema:
-
-```json
-[
-  {
-    "id": 1,
-    "description": "Buy groceries",
-    "status": "todo",
-    "createdAt": "2026-06-18T21:36:46.792Z",
-    "updatedAt": "2026-06-18T21:40:12.350Z"
-  }
-]
-```
-
----
-
-## License
-This project is open-source and available for educational and practice purposes.
+* **LinkedIn:** [Daniel Belculfine](https://www.linkedin.com/in/daniel-belculfine-2905253b3/)
+* **GitHub:** [Daniel27072007](https://github.com/daniel27072007)
+* **Roadmap.sh:** [dbelculfine](https://roadmap.sh/u/dbelculfine)
