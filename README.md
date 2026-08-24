@@ -1,5 +1,6 @@
 # Backend_Projects_Roadmaps.sh
-Here are all the projects i did about backend avalible in Roadmaps.sh
+Here is a list of all the projects i made about backend in the Roadmap.sh.<br>
+To see more information about each one, what i learn, what i needed to do and how to install and execute, click on the project folder.
 
 <ul>
     <li><a href="https://roadmap.sh/projects/task-tracker">Task Tracker</a></li>
